@@ -1,6 +1,11 @@
+import { parse } from './Back/analizador.js';
+
 let tabCount = 0;
 let openedTabs = {};
 
+const editor = document.getElementById('codigoFuente')
+const cons = document.getElementById('consolaOutput')
+document.getElementById('ejecutarBtn').addEventListener('click', analizador);
 document.getElementById('crearArchivoBtn').addEventListener('click', crearArchivo);
 document.getElementById('abrirArchivoBtn').addEventListener('click', abrirArchivo);
 document.getElementById('guardarArchivoBtn').addEventListener('click', guardarArchivo);
@@ -81,4 +86,28 @@ function seleccionarTab(tab) {
     tab.classList.add('active');
     const tabId = tab.dataset.tabId;
     document.getElementById('codigoFuente').value = openedTabs[tabId] || '';
+}
+
+const recorrer = (nodo) => {
+    if (nodo.tipo === 'numero') return nodo.valor
+    if (nodo.tipo === 'parentesis') return recorrer(nodo.exp)
+
+    const exp1 = (nodo.izq && recorrer(nodo.izq)) || 0
+    const exp2 = recorrer(nodo.der)
+
+    switch (nodo.tipo) {
+        case '+': return exp1 + exp2
+        case '-': return exp1 - exp2
+        case '*': return exp1 * exp2
+        case '/': return exp1 / exp2
+        case '%': return exp1 % exp2
+    }
+}
+
+function analizador() {
+    const codigoFuente = editor.value;
+    const arbol = parse(codigoFuente);
+    console.log("AST generado:", JSON.stringify(arbol, null, 2))
+    const resultado = recorrer(arbol);
+    cons.innerHTML = resultado;
 }
