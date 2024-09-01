@@ -1,4 +1,7 @@
 module.exports = {
     format: 'es',
-    input: './analizador.pegjs',
+    input: './analizador/analizador.pegjs',
+    dependencies: {
+        'nodos': '../patron/nodos.js',
+    },
 }
