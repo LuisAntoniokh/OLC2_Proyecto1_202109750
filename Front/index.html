@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>OakLang - 202109750</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <button id="crearArchivoBtn">Crear Archivo</button>
+            <button id="abrirArchivoBtn">Abrir Archivo</button>
+            <button id="guardarArchivoBtn">Guardar Archivo</button>
+            <button id="ejecutarBtn">Ejecutar</button>
+            <button id="reporteErroresBtn">Reporte de Errores</button>
+            <button id="reporteSimbolosBtn">Reporte Tabla de Símbolos</button>
+        </aside>
+        <main class="editor-container">
+            <div class="tabs"></div>
+            <div class="editor">
+                <textarea id="codigoFuente" placeholder="// Código Fuente"></textarea>
+            </div>
+            <div class="consola">
+                <textarea id="consolaOutput" readonly placeholder="Consola"></textarea>
+            </div>
+        </main>
+    </div>
+    <script src="index.js"></script>
+</body>
+</html>
