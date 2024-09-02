@@ -1,13 +1,16 @@
 export class Entorno {
-    constructor(){
+    /**
+     * @param {Entorno} padre
+     */
+    constructor(padre = undefined){
         this.valores = {};
+        this.padre = padre;
     }
 
     /**
      * @param {string} id
      * @param {any} valor
      */
-
     setVariable(id, valor){
         this.valores[id] = valor;
     }
@@ -16,6 +19,33 @@ export class Entorno {
      * @param {string} id
      */
     getVariable(id){
-        return this.valores[id];
+        const actValue = this.valores[id];
+        if(actValue) return actValue;
+
+        if(!actValue && this.padre){
+            return this.padre.getVariable(id);
+        }
+        
+        throw new Error(`La variable ${id} no está definida`);
+    }
+
+    /**
+     * @param {string} id
+     * @param {any} valor
+     */
+    assignVariable(id, valor){
+        const actValue = this.valores[id];
+
+        if(actValue){
+            this.valores[id] = valor;
+            return;
+        }
+
+        if(!actValue && this.padre){
+            this.padre.assignVariable(id, valor);
+            return;
+        }
+
+        throw new Error(`La variable ${id} no está definida`);
     }
 }

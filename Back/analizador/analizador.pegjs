@@ -9,6 +9,10 @@
       'referenciaVariable': nodos.ReferenciaVariable,
       'print': nodos.Print,
       'expresionStmt': nodos.ExpresionStmt,
+      'asignacion': nodos.Asignacion,
+      'bloque': nodos.Bloque,
+      'if': nodos.If,
+      'while': nodos.While
     }
 
     const nodo = new tipos[tipoNodo](propert)
@@ -26,8 +30,28 @@ VarDcl = "var" _ id:Identificador _ "=" _ exp:Expresion _ ";" { return crearNodo
 
 Stmt = "print(" _ exp:Expresion _ ")" _ ";" { return crearNodo('print', { exp }) }
     / exp:Expresion _ ";" { return crearNodo('expresionStmt', { exp }) }
+    / "{" _ block:Declaracion* _ "}" { return crearNodo('bloque', {block}) }
+    / "if" _ "(" _ cond:Expresion _ ")" _ iftrue:Stmt iffalse:(
+      _ "else" _ iffalse:Stmt { return iffalse }
+    )? { return crearNodo('if', { cond, iftrue, iffalse }) }
+    / "while" _ "(" _ cond:Expresion _ ")" _ loop:Stmt { return crearNodo('while', {cond, loop})}
 
-Expresion = Adicion
+Expresion = Asignacion
+
+Asignacion = id:Identificador _ "=" _ asgn:Asignacion { return crearNodo('asignacion', {id, asgn} )}
+            / Comparacion
+
+Comparacion = izq:Adicion expansion:(
+  _ op:("<=") _ der:Adicion { return { tipo: op, der } }
+)* { 
+  return expansion.reduce(
+    (operacionAnterior, operacionActual) => {
+      const { tipo, der } = operacionActual
+      return crearNodo('binaria', { op:tipo, izq: operacionAnterior, der })
+    },
+    izq
+  )
+}
 
 Adicion = izq:Multiplicacion expansion:(
   _ op:("+" / "-") _ der:Multiplicacion { return { tipo: op, der } }

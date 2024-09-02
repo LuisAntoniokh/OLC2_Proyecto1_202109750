@@ -273,4 +273,136 @@ export class ExpresionStmt extends Expresion {
     }
 }
     
-export default { Expresion, OperacionBinaria, OperacionUnaria, Agrupacion, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt }
+export class Asignacion extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador de la variable
+ * @param {Expresion} options.asgn Expresion a asignar
+    */
+    constructor({ id, asgn }) {
+        super();
+        
+        /**
+         * Identificador de la variable
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Expresion a asignar
+         * @type {Expresion}
+        */
+        this.asgn = asgn;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitAsignacion(this);
+    }
+}
+    
+export class Bloque extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion[]} options.block Lista de sentencias del bloque
+    */
+    constructor({ block }) {
+        super();
+        
+        /**
+         * Lista de sentencias del bloque
+         * @type {Expresion[]}
+        */
+        this.block = block;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitBloque(this);
+    }
+}
+    
+export class If extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.cond Condicion del if
+ * @param {Expresion} options.iftrue Bloque de sentencias del if
+ * @param {Expresion|undefined} options.iffalse Bloque de sentencias del else
+    */
+    constructor({ cond, iftrue, iffalse }) {
+        super();
+        
+        /**
+         * Condicion del if
+         * @type {Expresion}
+        */
+        this.cond = cond;
+
+
+        /**
+         * Bloque de sentencias del if
+         * @type {Expresion}
+        */
+        this.iftrue = iftrue;
+
+
+        /**
+         * Bloque de sentencias del else
+         * @type {Expresion|undefined}
+        */
+        this.iffalse = iffalse;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitIf(this);
+    }
+}
+    
+export class While extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.cond Condicion del while
+ * @param {Expresion} options.loop Bloque de sentencias del while
+    */
+    constructor({ cond, loop }) {
+        super();
+        
+        /**
+         * Condicion del while
+         * @type {Expresion}
+        */
+        this.cond = cond;
+
+
+        /**
+         * Bloque de sentencias del while
+         * @type {Expresion}
+        */
+        this.loop = loop;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitWhile(this);
+    }
+}
+    
+export default { Expresion, OperacionBinaria, OperacionUnaria, Agrupacion, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt, Asignacion, Bloque, If, While }

@@ -143,6 +143,74 @@ const configuracionNodos = [
             }
         ]
     },
+    // Asignacion
+    {
+        name: 'Asignacion',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador de la variable'
+            },
+            {
+                name: 'asgn',
+                type: 'Expresion',
+                description: 'Expresion a asignar'
+            }
+        ]
+    },
+    // Bloque
+    {
+        name: 'Bloque',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'block',
+                type: 'Expresion[]',
+                description: 'Lista de sentencias del bloque'
+            }
+        ]
+    },
+    // If
+    {
+        name: 'If',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'cond',
+                type: 'Expresion',
+                description: 'Condicion del if'
+            },
+            {
+                name: 'iftrue',
+                type: 'Expresion',
+                description: 'Bloque de sentencias del if'
+            },
+            {
+                name: 'iffalse',
+                type: 'Expresion|undefined',
+                description: 'Bloque de sentencias del else'
+            }
+        ]
+    },
+    // While
+    {
+        name: 'While',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'cond',
+                type: 'Expresion',
+                description: 'Condicion del while'
+            },
+            {
+                name: 'loop',
+                type: 'Expresion',
+                description: 'Bloque de sentencias del while'
+            }
+        ]
+    },
 ]
 
 let code = ''

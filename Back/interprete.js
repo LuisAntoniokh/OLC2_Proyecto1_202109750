@@ -28,6 +28,8 @@ export class InterpreterVisitor extends BaseVisitor {
                 return izq / der;
             case '%':
                 return izq % der;
+            case '<=':
+                return izq <= der;
             default:
                 throw new Error(`Operador no soportado: ${node.op}`);
         }
@@ -98,4 +100,47 @@ export class InterpreterVisitor extends BaseVisitor {
         node.exp.accept(this);
     }
 
+    /**
+      * @type {BaseVisitor['visitAsignacion']}
+      */
+    visitAsignacion(node) {
+        const value = node.asgn.accept(this);
+        this.entornoActual.assignVariable(node.id, value);
+        return value;
+    }
+
+    /**
+      * @type {BaseVisitor['visitBloque']}
+      */
+    visitBloque(node) {
+        const entornoAnterior = this.entornoActual;
+        this.entornoActual = new Entorno(entornoAnterior);
+        node.block.forEach(loop => loop.accept(this));
+        this.entornoActual = entornoAnterior;
+    }
+
+    /**
+      * @type {BaseVisitor['visitIf']}
+      */
+    visitIf(node) {
+        const condicion = node.cond.accept(this);
+
+        if (condicion) {
+            node.iftrue.accept(this);
+            return;
+        }
+
+        if (node.iffalse) {
+            node.iffalse.accept(this);
+        }
+    }
+
+    /**
+      * @type {BaseVisitor['visitWhile']}
+      */
+    visitWhile(node) {
+        while (node.cond.accept(this)) {
+            node.loop.accept(this);
+        }
+    }
 }
