@@ -12,7 +12,12 @@
       'asignacion': nodos.Asignacion,
       'bloque': nodos.Bloque,
       'if': nodos.If,
-      'while': nodos.While
+      'while': nodos.While,
+      'for': nodos.For,
+      'break': nodos.Break,
+      'continue': nodos.Continue,
+      'return': nodos.Return,
+      'llamada': nodos.Llamada
     }
 
     const nodo = new tipos[tipoNodo](propert)
@@ -29,12 +34,19 @@ Declaracion = dlc:VarDcl _ { return dlc }
 VarDcl = "var" _ id:Identificador _ "=" _ exp:Expresion _ ";" { return crearNodo('declaracionVariable', { id, exp }) }
 
 Stmt = "print(" _ exp:Expresion _ ")" _ ";" { return crearNodo('print', { exp }) }
-    / exp:Expresion _ ";" { return crearNodo('expresionStmt', { exp }) }
     / "{" _ block:Declaracion* _ "}" { return crearNodo('bloque', {block}) }
     / "if" _ "(" _ cond:Expresion _ ")" _ iftrue:Stmt iffalse:(
       _ "else" _ iffalse:Stmt { return iffalse }
     )? { return crearNodo('if', { cond, iftrue, iffalse }) }
     / "while" _ "(" _ cond:Expresion _ ")" _ loop:Stmt { return crearNodo('while', {cond, loop})}
+    / "for" _ "(" _ init:ForInit _  cond:Expresion _ ";" _ inc:Expresion _ ")" _ loop:Stmt { return crearNodo('for', {init, cond, inc, loop})}
+    / "break" _ ";" { return crearNodo('break') }
+    / "continue" _ ";" { return crearNodo('continue') }
+    / "return" _ ret:Expresion? _ ";" { return crearNodo('return', { ret }) }
+    / exp:Expresion _ ";" { return crearNodo('expresionStmt', { exp }) }
+
+ForInit = dcl:VarDcl { return dcl }
+        / exp:Expresion _ ";" { return exp }
 
 Expresion = Asignacion
 
@@ -42,7 +54,7 @@ Asignacion = id:Identificador _ "=" _ asgn:Asignacion { return crearNodo('asigna
             / Comparacion
 
 Comparacion = izq:Adicion expansion:(
-  _ op:("<=") _ der:Adicion { return { tipo: op, der } }
+  _ op:("<=" / "==") _ der:Adicion { return { tipo: op, der } }
 )* { 
   return expansion.reduce(
     (operacionAnterior, operacionActual) => {
@@ -77,8 +89,19 @@ Multiplicacion = izq:Unaria expansion:(
     )
 }
 
-Unaria = "-" _ num:Numero { return crearNodo('unaria', { op: '-', exp: num }) }
-/ Numero
+Unaria = "-" _ num:Unaria { return crearNodo('unaria', { op: '-', exp: num }) }
+/ Llamada
+
+Llamada = callee:Numero _ params:("(" args:Argumentos? ")" { return {args} })*{
+  return params.reduce(
+    (callee, args) => {
+      return crearNodo('llamada', {callee, args: args || [] } )
+    },
+    callee
+  )
+}
+
+Argumentos = arg:Expresion _ args:("," _ exp:Expresion { return exp })* { return [arg, ...args] }
 
 Identificador = [a-zA-Z_][a-zA-Z0-9_]* { return text() }
 
@@ -86,4 +109,7 @@ Numero = [0-9]+( "." [0-9]+ )? {return crearNodo('numero', { valor: parseFloat(t
   / "(" _ exp:Expresion _ ")" { return crearNodo('agrupacion', { exp }) }
   / id:Identificador { return crearNodo('referenciaVariable', { id }) }
 
-_ = [ \t\n\r]*
+_ = ([ \t\n\r] / Comentarios)*
+
+Comentarios = "//" (![\n] .)*
+            / "/*" (!("*/") .)* "*/"

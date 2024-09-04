@@ -211,6 +211,69 @@ const configuracionNodos = [
             }
         ]
     },
+    {
+        name: 'For',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'init',
+                type: 'Expresion',
+                description: 'Inicializacion del for'
+            },
+            {
+                name: 'cond',
+                type: 'Expresion',
+                description: 'Condicion del for'
+            },
+            {
+                name: 'inc',
+                type: 'Expresion',
+                description: 'Incremento del for'
+            },
+            {
+                name: 'loop',
+                type: 'Expresion',
+                description: 'Bloque de sentencias del for'
+            }
+        ]
+    },
+    {
+        name: "Break",
+        extends: 'Expresion',
+        props: []
+    },
+    {
+        name : "Continue",
+        extends: 'Expresion',
+        props: []
+    },
+    {
+        name: "Return",
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'ret',
+                type: 'Expresion',
+                description: 'Expresion a retornar'
+            }
+        ]
+    },
+    {
+        name: "Llamada",
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'callee',
+                type: 'Expresion',
+                description: 'Llamada a la función'
+            },
+            {
+                name: 'args',
+                type: 'Expresion[]',
+                description: 'Argumentos de la funcion'
+            }
+        ]
+    }
 ]
 
 let code = ''
@@ -236,7 +299,7 @@ export class ${nodo.name} ${baseClass && nodo.extends ? `extends ${nodo.extends}
     * @param {Object} options
     * ${nodo.props.map(prop => `@param {${prop.type}} options.${prop.name} ${prop.description}`).join('\n * ')}
     */
-    constructor(${!nodo.base && `{ ${nodo.props.map(prop => `${prop.name}`).join(', ')} }` || ''}) {
+    constructor(${!nodo.base && nodo.props.length > 0 && `{ ${nodo.props.map(prop => `${prop.name}`).join(', ')} }` || ''}) {
         ${baseClass && nodo.extends ? `super();` : ''}
         ${nodo.props.map(prop => `
         /**

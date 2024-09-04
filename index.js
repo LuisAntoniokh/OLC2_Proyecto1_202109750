@@ -91,10 +91,15 @@ function seleccionarTab(tab) {
 
 function analizador() {
     const codigoFuente = editor.value;
+    try {
     const arbol = parse(codigoFuente);
     console.log("AST generado:", JSON.stringify(arbol, null, 2))
     const interprete = new InterpreterVisitor();
     console.log({arbol})
     arbol.forEach(arbol => arbol.accept(interprete))
     cons.innerHTML = interprete.salida;
+    } catch (error) {
+        console.log(error)
+        console.log(error.message + " en la linea " + error.location.start.line + " y columna " + error.location.start.column)
+    }
 }
