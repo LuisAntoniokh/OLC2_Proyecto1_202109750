@@ -11,19 +11,19 @@ export class Entorno {
      * @param {string} id
      * @param {any} valor
      */
-    setVariable(id, valor){
+    set(id, valor){
         this.valores[id] = valor;
     }
 
     /**
      * @param {string} id
      */
-    getVariable(id){
+    get(id){
         const actValue = this.valores[id];
         if(actValue !== undefined) return actValue;
 
         if(!actValue && this.padre){
-            return this.padre.getVariable(id);
+            return this.padre.get(id);
         }
         
         throw new Error(`La variable ${id} no está definida`);
@@ -33,7 +33,7 @@ export class Entorno {
      * @param {string} id
      * @param {any} valor
      */
-    assignVariable(id, valor){
+    assign(id, valor){
         const actValue = this.valores[id];
 
         if(actValue !== undefined){
@@ -42,7 +42,7 @@ export class Entorno {
         }
 
         if(!actValue && this.padre){
-            this.padre.assignVariable(id, valor);
+            this.padre.assign(id, valor);
             return;
         }
 

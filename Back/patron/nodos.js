@@ -496,16 +496,16 @@ export class Return extends Expresion {
 
     /**
     * @param {Object} options
-    * @param {Expresion} options.ret Expresion a retornar
+    * @param {Expresion} options.exp Expresion a retornar
     */
-    constructor({ ret }) {
+    constructor({ exp }) {
         super();
         
         /**
          * Expresion a retornar
          * @type {Expresion}
         */
-        this.ret = ret;
+        this.exp = exp;
 
     }
 
@@ -550,4 +550,45 @@ export class Llamada extends Expresion {
     }
 }
     
-export default { Expresion, OperacionBinaria, OperacionUnaria, Agrupacion, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt, Asignacion, Bloque, If, While, For, Break, Continue, Return, Llamada }
+export class FuncDcl extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador de la funcion
+ * @param {string[]} options.params Parametros de la funcion
+ * @param {Bloque} options.block Bloque de sentencias de la funcion
+    */
+    constructor({ id, params, block }) {
+        super();
+        
+        /**
+         * Identificador de la funcion
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Parametros de la funcion
+         * @type {string[]}
+        */
+        this.params = params;
+
+
+        /**
+         * Bloque de sentencias de la funcion
+         * @type {Bloque}
+        */
+        this.block = block;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitFuncDcl(this);
+    }
+}
+    
+export default { Expresion, OperacionBinaria, OperacionUnaria, Agrupacion, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt, Asignacion, Bloque, If, While, For, Break, Continue, Return, Llamada, FuncDcl }

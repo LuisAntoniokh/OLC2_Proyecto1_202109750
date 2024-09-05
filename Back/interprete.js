@@ -4,6 +4,7 @@ import nodos, { Expresion } from "./patron/nodos.js";
 import { BreakExcp, ContinueExcp, ReturnExcp } from "./Entorno/transferencia.js";
 import { Invocable } from "./funciones/invocables.js";
 import { embebidas } from "./funciones/embebidas.js";
+import { FuncionForanea } from "./funciones/foranea.js";
 
 export class InterpreterVisitor extends BaseVisitor {
 
@@ -11,7 +12,7 @@ export class InterpreterVisitor extends BaseVisitor {
         super();
         this.entornoActual = new Entorno();
         Object.entries(embebidas).forEach(([nombre, funcion]) => {
-            this.entornoActual.setVariable(nombre, funcion);
+            this.entornoActual.set(nombre, funcion);
         });
         this.salida = '';
 
@@ -84,7 +85,7 @@ export class InterpreterVisitor extends BaseVisitor {
         const nombreVariable = node.id;
         const valorVariable = node.exp.accept(this);
 
-        this.entornoActual.setVariable(nombreVariable, valorVariable);
+        this.entornoActual.set(nombreVariable, valorVariable);
     }
 
 
@@ -93,7 +94,7 @@ export class InterpreterVisitor extends BaseVisitor {
       */
     visitReferenciaVariable(node) {
         const nombreVariable = node.id;
-        return this.entornoActual.getVariable(nombreVariable);
+        return this.entornoActual.get(nombreVariable);
     }
 
 
@@ -118,7 +119,7 @@ export class InterpreterVisitor extends BaseVisitor {
       */
     visitAsignacion(node) {
         const value = node.asgn.accept(this);
-        this.entornoActual.assignVariable(node.id, value);
+        this.entornoActual.assign(node.id, value);
         return value;
     }
 
@@ -229,13 +230,21 @@ export class InterpreterVisitor extends BaseVisitor {
       */
     visitLlamada(node){
         const funcion = node.callee.accept(this);
-        const args = node.args.map(arg => arg.accept(this));
+        const argumentos = node.args.map(arg => arg.accept(this));
         if(!(funcion instanceof Invocable)){
             throw new Error('No es invocable');
         }
-        if(funcion.aridad() !== args.length){
+        if(funcion.aridad() !== argumentos.length){
             throw new Error('Aridad incorrecta');
         }
-        return funcion.invocar(this, args)
+        return funcion.invocar(this, argumentos)
+    }
+
+    /**
+      * @type {BaseVisitor['visitFuncDcl']}
+      */
+    visitFuncDcl(node){
+        const funcion = new FuncionForanea(node, this.entornoActual);
+        this.entornoActual.set(node.id, funcion);
     }
 }

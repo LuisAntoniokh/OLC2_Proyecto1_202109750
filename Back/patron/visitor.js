@@ -54,6 +54,9 @@
 
  * @typedef {import('./nodos').Llamada} Llamada
 
+
+ * @typedef {import('./nodos').FuncDcl} FuncDcl
+
  */
 
 
@@ -223,6 +226,15 @@ export class BaseVisitor {
      */
     visitLlamada(node) {
         throw new Error('Metodo visitLlamada no implementado');
+    }
+    
+
+    /**
+     * @param {FuncDcl} node
+     * @returns {any}
+     */
+    visitFuncDcl(node) {
+        throw new Error('Metodo visitFuncDcl no implementado');
     }
     
 }

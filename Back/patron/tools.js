@@ -252,7 +252,7 @@ const configuracionNodos = [
         extends: 'Expresion',
         props: [
             {
-                name: 'ret',
+                name: 'exp',
                 type: 'Expresion',
                 description: 'Expresion a retornar'
             }
@@ -271,6 +271,27 @@ const configuracionNodos = [
                 name: 'args',
                 type: 'Expresion[]',
                 description: 'Argumentos de la funcion'
+            }
+        ]
+    },
+    {
+        name: "FuncDcl",
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador de la funcion'
+            },
+            {
+                name: 'params',
+                type: 'string[]',
+                description: 'Parametros de la funcion'
+            },
+            {
+                name: 'block',
+                type: 'Bloque',
+                description: 'Bloque de sentencias de la funcion'
             }
         ]
     }

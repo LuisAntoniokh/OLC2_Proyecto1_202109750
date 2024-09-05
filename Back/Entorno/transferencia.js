@@ -12,10 +12,10 @@ export class ContinueExcp extends Error {
 
 export class ReturnExcp extends Error {
     /**
-     * @param {any} ret
+     * @param {any} value
      */
-    constructor(ret) {
+    constructor(value) {
         super('Return');
-        this.ret = ret;
+        this.value = value;
     }
 }

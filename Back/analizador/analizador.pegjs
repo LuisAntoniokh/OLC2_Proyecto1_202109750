@@ -17,7 +17,8 @@
       'break': nodos.Break,
       'continue': nodos.Continue,
       'return': nodos.Return,
-      'llamada': nodos.Llamada
+      'llamada': nodos.Llamada,
+      'dclFunc' : nodos.FuncDcl
     }
 
     const nodo = new tipos[tipoNodo](propert)
@@ -29,12 +30,17 @@
 Start = _ dcl:Declaracion* _ { return dcl }
 
 Declaracion = dlc:VarDcl _ { return dlc }
+            / dlc:FuncDcl _ { return dlc }
             / stmt:Stmt _ { return stmt }
 
 VarDcl = "var" _ id:Identificador _ "=" _ exp:Expresion _ ";" { return crearNodo('declaracionVariable', { id, exp }) }
 
+FuncDcl = "function" _ id:Identificador _ "(" _ params: Parametros? _ ")" _  block:Bloque { return crearNodo('dclFunc', { id, params: params || [], block }) }
+
+Parametros = id:Identificador _ params:("," _ ids:Identificador {return ids})* {return [id, ...params]}
+
 Stmt = "print(" _ exp:Expresion _ ")" _ ";" { return crearNodo('print', { exp }) }
-    / "{" _ block:Declaracion* _ "}" { return crearNodo('bloque', {block}) }
+    / block:Bloque { return block }
     / "if" _ "(" _ cond:Expresion _ ")" _ iftrue:Stmt iffalse:(
       _ "else" _ iffalse:Stmt { return iffalse }
     )? { return crearNodo('if', { cond, iftrue, iffalse }) }
@@ -42,8 +48,10 @@ Stmt = "print(" _ exp:Expresion _ ")" _ ";" { return crearNodo('print', { exp })
     / "for" _ "(" _ init:ForInit _  cond:Expresion _ ";" _ inc:Expresion _ ")" _ loop:Stmt { return crearNodo('for', {init, cond, inc, loop})}
     / "break" _ ";" { return crearNodo('break') }
     / "continue" _ ";" { return crearNodo('continue') }
-    / "return" _ ret:Expresion? _ ";" { return crearNodo('return', { ret }) }
+    / "return" _ exp:Expresion? _ ";" { return crearNodo('return', { exp }) }
     / exp:Expresion _ ";" { return crearNodo('expresionStmt', { exp }) }
+
+Bloque = "{" _ block:Declaracion* _ "}" { return crearNodo('bloque', { block }) }
 
 ForInit = dcl:VarDcl { return dcl }
         / exp:Expresion _ ";" { return exp }
@@ -92,7 +100,7 @@ Multiplicacion = izq:Unaria expansion:(
 Unaria = "-" _ num:Unaria { return crearNodo('unaria', { op: '-', exp: num }) }
 / Llamada
 
-Llamada = callee:Numero _ params:("(" args:Argumentos? ")" { return {args} })*{
+Llamada = callee:Numero _ params:("(" args:Argumentos? ")" { return args })*{
   return params.reduce(
     (callee, args) => {
       return crearNodo('llamada', {callee, args: args || [] } )
