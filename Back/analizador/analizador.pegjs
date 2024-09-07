@@ -155,10 +155,22 @@ Primitivo = [0-9]+"."[0-9]+ {return crearNodo('Primal', { valor: parseFloat(text
   / [0-9]+                  {return crearNodo('Primal', { valor: parseInt(text(), 10), tipo: 'int' })}
   / "true"                  {return crearNodo('Primal', { valor: true, tipo: 'bool' })}
   / "false"                 {return crearNodo('Primal', { valor: false, tipo: 'bool' })}
-  / "\"" [^"]* "\""         {return crearNodo('Primal', { valor: text().slice(1, -1), tipo: 'string' })}
+  / str:String              { return str }
   / "\'" [^'] "\'"          {return crearNodo('Primal', { valor: text().slice(1, -1), tipo: 'char' })}
   / "(" _ exp:Expresion _ ")" { return crearNodo('agrupacion', { exp }) }
   / id:Identificador { return crearNodo('referenciaVariable', { id }) }
+
+String
+  = "\"" chars:((EscapedChar / [^"\\])*) "\"" {
+      return crearNodo('Primal', { valor: chars.join(''), tipo: 'string' });
+    }
+
+EscapedChar
+  = "\\" ("n" { return "\n"; }
+          / "r" { return "\r"; }
+          / "t" { return "\t"; }
+          / "\"" { return "\""; }
+          / "\\" { return "\\"; })
 
 _ = ([ \t\n\r] / Comentarios)*
 

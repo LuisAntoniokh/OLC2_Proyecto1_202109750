@@ -360,6 +360,10 @@ export class InterpreterVisitor extends BaseVisitor {
       * @type {BaseVisitor['visitPrimal']}
       */
     visitPrimal(node){
+        if (node.tipo === 'string'){
+            const cleanval = node.valor.replace(/\\,/g, '');
+            return { valor : cleanval, tipo : 'string' };
+        }
         return { valor : node.valor, tipo : node.tipo };
     }
 }
