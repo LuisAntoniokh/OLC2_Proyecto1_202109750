@@ -60,11 +60,47 @@ ForInit = dcl:VarDcl { return dcl }
 Expresion = Asignacion
 
 Asignacion = id:Identificador _ "=" _ asgn:Asignacion { return crearNodo('asignacion', {id, asgn} )}
-            / Comparacion
+            / OR
 
-Comparacion = izq:Adicion expansion:(
-  _ op:("<=" / "==") _ der:Adicion { return { tipo: op, der } }
+OR = izq:AND expansion:(
+  _ op:( "||" ) _ der:AND { return { tipo: op, der } }
 )* { 
+  return expansion.reduce(
+    (operacionAnterior, operacionActual) => {
+      const { tipo, der } = operacionActual
+      return crearNodo('binaria', { op:tipo, izq: operacionAnterior, der })
+    },
+    izq
+  )
+}
+
+AND = izq:Comparacion expansion:(
+  _ op:( "&&" ) _ der:Comparacion { return { tipo: op, der } }
+)* { 
+  return expansion.reduce(
+    (operacionAnterior, operacionActual) => {
+      const { tipo, der } = operacionActual
+      return crearNodo('binaria', { op:tipo, izq: operacionAnterior, der })
+    },
+    izq
+  )
+}
+
+Comparacion = izq:Relacionales expansion:(
+  _ op:("!=" / "==") _ der:Relacionales { return { tipo: op, der } }
+)* { 
+  return expansion.reduce(
+    (operacionAnterior, operacionActual) => {
+      const { tipo, der } = operacionActual
+      return crearNodo('binaria', { op:tipo, izq: operacionAnterior, der })
+    },
+    izq
+  )
+}
+
+Relacionales = izq:Adicion expansion:(
+  _ op:("<=" / "<" / ">=" / ">") _ der:Adicion { return { tipo: op, der } }
+)* {
   return expansion.reduce(
     (operacionAnterior, operacionActual) => {
       const { tipo, der } = operacionActual
@@ -99,7 +135,8 @@ Multiplicacion = izq:Unaria expansion:(
 }
 
 Unaria = "-" _ num:Unaria { return crearNodo('unaria', { op: '-', exp: num }) }
-/ Llamada
+      / "!" _ num:Unaria { return crearNodo('unaria', { op: '!', exp: num }) }
+      / Llamada
 
 Llamada = callee:Primitivo _ params:("(" args:Argumentos? ")" { return args })*{
   return params.reduce(
@@ -116,8 +153,8 @@ Identificador = [a-zA-Z_][a-zA-Z0-9_]* { return text() }
 
 Primitivo = [0-9]+"."[0-9]+ {return crearNodo('Primal', { valor: parseFloat(text(), 10), tipo: 'float' })}
   / [0-9]+                  {return crearNodo('Primal', { valor: parseInt(text(), 10), tipo: 'int' })}
-  / "true"                  {return crearNodo('Primal', { valor: "true", tipo: 'bool' })}
-  / "false"                 {return crearNodo('Primal', { valor: "false", tipo: 'bool' })}
+  / "true"                  {return crearNodo('Primal', { valor: true, tipo: 'bool' })}
+  / "false"                 {return crearNodo('Primal', { valor: false, tipo: 'bool' })}
   / "\"" [^"]* "\""         {return crearNodo('Primal', { valor: text().slice(1, -1), tipo: 'string' })}
   / "\'" [^'] "\'"          {return crearNodo('Primal', { valor: text().slice(1, -1), tipo: 'char' })}
   / "(" _ exp:Expresion _ ")" { return crearNodo('agrupacion', { exp }) }

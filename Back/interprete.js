@@ -33,6 +33,10 @@ export class InterpreterVisitor extends BaseVisitor {
             switch (node.op) {
                 case '+':
                     return { valor: izq.valor + der.valor, tipo: 'string' };
+                case '==':
+                    return { valor: izq.valor == der.valor, tipo: 'bool' };
+                case '!=':
+                    return { valor: izq.valor != der.valor, tipo: 'bool' };
                 default:
                     throw new Error(`Operador no soportado: ${node.op}`);
             }
@@ -50,10 +54,24 @@ export class InterpreterVisitor extends BaseVisitor {
                     return { valor: Math.floor(izq.valor / der.valor), tipo: 'int' };
                 case '%':
                     return { valor: izq.valor % der.valor, tipo: 'int' };
+                case '==':
+                    return { valor: izq.valor == der.valor, tipo: 'bool' };
+                case '!=':
+                    return { valor: izq.valor != der.valor, tipo: 'bool' };
+                case '>':
+                    return { valor: izq.valor > der.valor, tipo: 'bool' };
+                case '<':
+                    return { valor: izq.valor < der.valor, tipo: 'bool' };
+                case '>=':
+                    return { valor: izq.valor >= der.valor, tipo: 'bool' };
+                case '<=':
+                    return { valor: izq.valor <= der.valor, tipo: 'bool' };
                 default:
                     throw new Error(`Operador no soportado: ${node.op}`);
             }
-        } else if((izq.tipo === 'int' && der.tipo === 'float') || (izq.tipo === 'float' && der.tipo === 'int') || (izq.tipo === 'float' && der.tipo === 'float')){ 
+        } 
+        
+        if((izq.tipo === 'int' && der.tipo === 'float') || (izq.tipo === 'float' && der.tipo === 'int') || (izq.tipo === 'float' && der.tipo === 'float')){ 
             switch (node.op) {
                 case '+':
                     return { valor: (izq.valor + der.valor).toFixed(4), tipo: 'float' };
@@ -63,10 +81,58 @@ export class InterpreterVisitor extends BaseVisitor {
                     return { valor: (izq.valor * der.valor).toFixed(4), tipo: 'float' };
                 case '/':
                     return { valor: (izq.valor / der.valor).toFixed(4), tipo: 'float' };
+                case '==':
+                    return { valor: izq.valor == der.valor, tipo: 'bool' };
+                case '!=':
+                    return { valor: izq.valor != der.valor, tipo: 'bool' };
+                case '>':
+                    return { valor: izq.valor > der.valor, tipo: 'bool' };
+                case '<':
+                    return { valor: izq.valor < der.valor, tipo: 'bool' };
+                case '>=':
+                    return { valor: izq.valor >= der.valor, tipo: 'bool' };
+                case '<=':
+                    return { valor: izq.valor <= der.valor, tipo: 'bool' };
                 default:
                     throw new Error(`Operador no soportado: ${node.op}`);
             }
-        } else {
+        } 
+        
+        if(izq.tipo === 'char' && der.tipo === 'char'){
+            switch (node.op) {
+                case '==':
+                    return { valor: izq.valor == der.valor, tipo: 'bool' };
+                case '!=':
+                    return { valor: izq.valor != der.valor, tipo: 'bool' };
+                case '>':
+                    return { valor: izq.valor.charCodeAt(0) > der.valor.charCodeAt(0), tipo: 'bool' };
+                case '<':
+                    return { valor: izq.valor.charCodeAt(0) < der.valor.charCodeAt(0), tipo: 'bool' };
+                case '>=':
+                    return { valor: izq.valor.charCodeAt(0) >= der.valor.charCodeAt(0), tipo: 'bool' };
+                case '<=':
+                    return { valor: izq.valor.charCodeAt(0) <= der.valor.charCodeAt(0), tipo: 'bool' };
+                default:
+                    throw new Error(`Operador no soportado: ${node.op}`);
+            }
+        }
+        
+        if(izq.tipo === 'bool' && der.tipo === 'bool'){
+            switch (node.op) {
+                case '==':
+                    return { valor: izq.valor == der.valor, tipo: 'bool' };
+                case '!=':
+                    return { valor: izq.valor != der.valor, tipo: 'bool' };
+                case '&&':
+                    return { valor: izq.valor && der.valor, tipo: 'bool' };
+                case '||':
+                    return { valor: izq.valor || der.valor, tipo: 'bool' };
+                default:
+                    throw new Error(`Operador no soportado: ${node.op}`);
+            }
+        }
+
+        else {
             throw new Error('Tipos no soportados');
         }
     }
@@ -88,6 +154,15 @@ export class InterpreterVisitor extends BaseVisitor {
             switch (node.op) {
                 case '-':
                     return { valor: (-exp.valor).toFixed(4), tipo: 'float' };
+                default:
+                    throw new Error(`Operador no soportado: ${node.op}`);
+            }
+        } 
+        
+        if (exp.tipo === 'bool'){
+            switch (node.op) {
+                case '!':
+                    return { valor: !exp.valor, tipo: 'bool' };
                 default:
                     throw new Error(`Operador no soportado: ${node.op}`);
             }
