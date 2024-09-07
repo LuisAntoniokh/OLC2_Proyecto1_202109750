@@ -41,6 +41,39 @@ export class Expresion  {
     }
 }
     
+export class Primal extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.valor Valor del numero
+ * @param {string} options.tipo Tipo de la expresion
+    */
+    constructor({ valor, tipo }) {
+        super();
+        
+        /**
+         * Valor del numero
+         * @type {Expresion}
+        */
+        this.valor = valor;
+
+
+        /**
+         * Tipo de la expresion
+         * @type {string}
+        */
+        this.tipo = tipo;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitPrimal(this);
+    }
+}
+    
 export class OperacionBinaria extends Expresion {
 
     /**
@@ -591,4 +624,4 @@ export class FuncDcl extends Expresion {
     }
 }
     
-export default { Expresion, OperacionBinaria, OperacionUnaria, Agrupacion, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt, Asignacion, Bloque, If, While, For, Break, Continue, Return, Llamada, FuncDcl }
+export default { Expresion, Primal, OperacionBinaria, OperacionUnaria, Agrupacion, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt, Asignacion, Bloque, If, While, For, Break, Continue, Return, Llamada, FuncDcl }

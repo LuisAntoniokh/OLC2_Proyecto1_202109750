@@ -29,23 +29,45 @@ export class InterpreterVisitor extends BaseVisitor {
         const izq = node.izq.accept(this);
         const der = node.der.accept(this);
 
-        switch (node.op) {
-            case '+':
-                return izq + der;
-            case '-':
-                return izq - der;
-            case '*':
-                return izq * der;
-            case '/':
-                return izq / der;
-            case '%':
-                return izq % der;
-            case '<=':
-                return izq <= der;
-            case '==':
-                return izq === der;
-            default:
-                throw new Error(`Operador no soportado: ${node.op}`);
+        if(izq.tipo === 'string' || der.tipo === 'string'){
+            switch (node.op) {
+                case '+':
+                    return { valor: izq.valor + der.valor, tipo: 'string' };
+                default:
+                    throw new Error(`Operador no soportado: ${node.op}`);
+            }
+        }
+
+        if(izq.tipo === 'int' && der.tipo === 'int'){
+            switch (node.op) {
+                case '+':
+                    return { valor: parseInt(izq.valor + der.valor, 10), tipo: 'int' };
+                case '-':
+                    return { valor: parseInt(izq.valor - der.valor, 10), tipo: 'int' };
+                case '*':
+                    return { valor: parseInt(izq.valor * der.valor, 10), tipo: 'int' };
+                case '/':
+                    return { valor: Math.floor(izq.valor / der.valor), tipo: 'int' };
+                case '%':
+                    return { valor: izq.valor % der.valor, tipo: 'int' };
+                default:
+                    throw new Error(`Operador no soportado: ${node.op}`);
+            }
+        } else if((izq.tipo === 'int' && der.tipo === 'float') || (izq.tipo === 'float' && der.tipo === 'int') || (izq.tipo === 'float' && der.tipo === 'float')){ 
+            switch (node.op) {
+                case '+':
+                    return { valor: (izq.valor + der.valor).toFixed(4), tipo: 'float' };
+                case '-':
+                    return { valor: (izq.valor - der.valor).toFixed(4), tipo: 'float' };
+                case '*':
+                    return { valor: (izq.valor * der.valor).toFixed(4), tipo: 'float' };
+                case '/':
+                    return { valor: (izq.valor / der.valor).toFixed(4), tipo: 'float' };
+                default:
+                    throw new Error(`Operador no soportado: ${node.op}`);
+            }
+        } else {
+            throw new Error('Tipos no soportados');
         }
     }
 
@@ -55,11 +77,22 @@ export class InterpreterVisitor extends BaseVisitor {
     visitOperacionUnaria(node) {
         const exp = node.exp.accept(this);
 
-        switch (node.op) {
-            case '-':
-                return -exp;
-            default:
-                throw new Error(`Operador no soportado: ${node.op}`);
+        if(exp.tipo === 'int'){
+            switch (node.op) {
+                case '-':
+                    return { valor: -exp.valor, tipo: 'int' };
+                default:
+                    throw new Error(`Operador no soportado: ${node.op}`);
+            }
+        } else if(exp.tipo === 'float'){
+            switch (node.op) {
+                case '-':
+                    return { valor: (-exp.valor).toFixed(4), tipo: 'float' };
+                default:
+                    throw new Error(`Operador no soportado: ${node.op}`);
+            }
+        } else {
+            throw new Error('Tipos no soportados');
         }
     }
 
@@ -103,7 +136,7 @@ export class InterpreterVisitor extends BaseVisitor {
       */
     visitPrint(node) {
         const valor = node.exp.accept(this);
-        this.salida += valor + '\n';
+        this.salida += valor.valor + '\n';
     }
 
 
@@ -246,5 +279,12 @@ export class InterpreterVisitor extends BaseVisitor {
     visitFuncDcl(node){
         const funcion = new FuncionForanea(node, this.entornoActual);
         this.entornoActual.set(node.id, funcion);
+    }
+    
+    /**
+      * @type {BaseVisitor['visitPrimal']}
+      */
+    visitPrimal(node){
+        return { valor : node.valor, tipo : node.tipo };
     }
 }

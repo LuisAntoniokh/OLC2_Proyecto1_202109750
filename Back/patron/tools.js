@@ -30,6 +30,24 @@ const configuracionNodos = [
             }
         ]
     },
+    //crearNodo('Primal', { valor: parseFloat(text(), 4), tipo: 'float' })
+    {
+        name: 'Primal',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'valor',
+                type: 'Expresion',
+                description: 'Valor del numero'
+            },
+            {
+                name: 'tipo',
+                type: 'string',
+                description: 'Tipo de la expresion'
+            }
+        ]
+    },
+
     // Configuracion de los nodos secundarios
     {
         name: 'OperacionBinaria',
