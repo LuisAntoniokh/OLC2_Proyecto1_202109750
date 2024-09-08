@@ -74,13 +74,13 @@ export class InterpreterVisitor extends BaseVisitor {
         if((izq.tipo === 'int' && der.tipo === 'float') || (izq.tipo === 'float' && der.tipo === 'int') || (izq.tipo === 'float' && der.tipo === 'float')){ 
             switch (node.op) {
                 case '+':
-                    return { valor: (izq.valor + der.valor).toFixed(4), tipo: 'float' };
+                    return { valor: (izq.valor + der.valor), tipo: 'float' };
                 case '-':
-                    return { valor: (izq.valor - der.valor).toFixed(4), tipo: 'float' };
+                    return { valor: (izq.valor - der.valor), tipo: 'float' };
                 case '*':
-                    return { valor: (izq.valor * der.valor).toFixed(4), tipo: 'float' };
+                    return { valor: (izq.valor * der.valor), tipo: 'float' };
                 case '/':
-                    return { valor: (izq.valor / der.valor).toFixed(4), tipo: 'float' };
+                    return { valor: (izq.valor / der.valor), tipo: 'float' };
                 case '==':
                     return { valor: izq.valor == der.valor, tipo: 'bool' };
                 case '!=':
