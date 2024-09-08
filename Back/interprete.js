@@ -192,30 +192,33 @@ export class InterpreterVisitor extends BaseVisitor {
     visitDeclaracionVariable(node) {
         const nombreVariable = node.id;
         const tipoVariable = node.tipo;
-        if (node.exp === 'null') {
+        if (node.exp === undefined) {
             if(tipoVariable === 'int'){
                 this.entornoActual.set(nombreVariable, 0, tipoVariable);
-            }
-            if(tipoVariable === 'float'){
+                return;
+            } else if(tipoVariable === 'float'){
                 this.entornoActual.set(nombreVariable, (0.0).toFixed(4), tipoVariable);
-            }
-            if(tipoVariable === 'char'){
+                return;
+            } else if(tipoVariable === 'char'){
                 this.entornoActual.set(nombreVariable, '\u0000', tipoVariable);
-            }
-            if(tipoVariable === 'bool'){
+                return;
+            } else if(tipoVariable === 'bool'){
                 this.entornoActual.set(nombreVariable, true, tipoVariable);
-            }
-            if(tipoVariable === 'string'){
+                return;
+            } else if(tipoVariable === 'string'){
                 this.entornoActual.set(nombreVariable, "", tipoVariable);
+                return;
             }     
         } 
         if (tipoVariable === "var"){
             const valorVariable = node.exp.accept(this);
             this.entornoActual.set(nombreVariable, valorVariable.valor, valorVariable.tipo);
+            return;
         }
         else {
             const valorVariable = node.exp.accept(this);
             this.entornoActual.set(nombreVariable, valorVariable.valor, valorVariable.tipo);
+            return;
         }
     }
 

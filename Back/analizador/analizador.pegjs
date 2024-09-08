@@ -36,6 +36,7 @@ Sentencias = vdlc:DeclarVar _ { return vdlc }
 
 DeclarVar = tipo:TipoDato _ id:Identificador _ "=" _ exp:Expresion _ ";" {return crearNodo('declaracionVariable', { id, exp, tipo })}
           / tipo:"var" _ id:Identificador _ "=" _ exp:Expresion _ ";" {return crearNodo('declaracionVariable', { id, exp, tipo })} // Se infiere el tipo.
+          / tipo:TipoDato _ id:Identificador _ exp:";" {return crearNodo('declaracionVariable', { id, tipo })}
 
 TipoDato = td:"int" { return td }
         / td:"float" { return td }
