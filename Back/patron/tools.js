@@ -122,6 +122,11 @@ const configuracionNodos = [
                 name: 'exp',
                 type: 'Expresion',
                 description: 'Expresion de la variable'
+            },
+            {
+                name: 'tipo',
+                type: 'string',
+                description: 'Tipo de la variable'
             }
         ]
     },

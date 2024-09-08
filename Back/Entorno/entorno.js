@@ -10,9 +10,10 @@ export class Entorno {
     /**
      * @param {string} id
      * @param {any} valor
+     * @param {string} tipo
      */
-    set(id, valor){
-        this.valores[id] = valor;
+    set(id, valor, tipo){
+        this.valores[id] = {valor, tipo};
     }
 
     /**

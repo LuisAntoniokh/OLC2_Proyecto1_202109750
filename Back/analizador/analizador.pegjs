@@ -28,33 +28,40 @@
   }
 }
 
-Start = _ dcl:Declaracion* _ { return dcl }
+Start = _ dcl:Sentencias* _ { return dcl }
 
-Declaracion = dlc:VarDcl _ { return dlc }
-            / dlc:FuncDcl _ { return dlc }
-            / stmt:Stmt _ { return stmt }
+Sentencias = vdlc:DeclarVar _ { return vdlc }
+            / fdlc:DeclarFunc _ { return fdlc }
+            / ndlc:StmtnDlc _ { return ndlc }
 
-VarDcl = "var" _ id:Identificador _ "=" _ exp:Expresion _ ";" { return crearNodo('declaracionVariable', { id, exp }) }
+DeclarVar = tipo:TipoDato _ id:Identificador _ "=" _ exp:Expresion _ ";" {return crearNodo('declaracionVariable', { id, exp, tipo })}
+          / tipo:"var" _ id:Identificador _ "=" _ exp:Expresion _ ";" {return crearNodo('declaracionVariable', { id, exp, tipo })} // Se infiere el tipo.
 
-FuncDcl = "function" _ id:Identificador _ "(" _ params: Parametros? _ ")" _  block:Bloque { return crearNodo('dclFunc', { id, params: params || [], block }) }
+TipoDato = td:"int" { return td }
+        / td:"float" { return td }
+        / td:"string" { return td }
+        / td:"bool" { return td }
+        / td:"char" { return td }
+
+DeclarFunc = "function" _ id:Identificador _ "(" _ params: Parametros? _ ")" _  block:Bloque { return crearNodo('dclFunc', { id, params: params || [], block }) }
 
 Parametros = id:Identificador _ params:("," _ ids:Identificador {return ids})* {return [id, ...params]}
 
-Stmt = "System.out.println(" _ exp:Expresion _ ")" { return crearNodo('print', { exp }) }
+StmtnDlc = "System.out.println(" _ exp:Expresion _ ")" { return crearNodo('print', { exp }) }
     / block:Bloque { return block }
-    / "if" _ "(" _ cond:Expresion _ ")" _ iftrue:Stmt iffalse:(
-      _ "else" _ iffalse:Stmt { return iffalse }
+    / "if" _ "(" _ cond:Expresion _ ")" _ iftrue:StmtnDlc iffalse:(
+      _ "else" _ iffalse:StmtnDlc { return iffalse }
     )? { return crearNodo('if', { cond, iftrue, iffalse }) }
-    / "while" _ "(" _ cond:Expresion _ ")" _ loop:Stmt { return crearNodo('while', {cond, loop})}
-    / "for" _ "(" _ init:ForInit _  cond:Expresion _ ";" _ inc:Expresion _ ")" _ loop:Stmt { return crearNodo('for', {init, cond, inc, loop})}
+    / "while" _ "(" _ cond:Expresion _ ")" _ loop:StmtnDlc { return crearNodo('while', {cond, loop})}
+    / "for" _ "(" _ init:ForInit _  cond:Expresion _ ";" _ inc:Expresion _ ")" _ loop:StmtnDlc { return crearNodo('for', {init, cond, inc, loop})}
     / "break" _ ";" { return crearNodo('break') }
     / "continue" _ ";" { return crearNodo('continue') }
     / "return" _ exp:Expresion? _ ";" { return crearNodo('return', { exp }) }
     / exp:Expresion _ ";" { return crearNodo('expresionStmt', { exp }) }
 
-Bloque = "{" _ block:Declaracion* _ "}" { return crearNodo('bloque', { block }) }
+Bloque = "{" _ block:Sentencias* _ "}" { return crearNodo('bloque', { block }) }
 
-ForInit = dcl:VarDcl { return dcl }
+ForInit = dcl:DeclarVar { return dcl }
         / exp:Expresion _ ";" { return exp }
 
 Expresion = Asignacion
@@ -187,6 +194,8 @@ Sentencias = vdlc:DeclarVar _ { return vdlc }
 //          / adlc:DeclarArr _ {return adlc}
 //          / sdlc:DeclarStr _ {return sdlc}
 
+VarDcl = "var" _ id:Identificador _ "=" _ exp:Expresion _ ";" { return crearNodo('declaracionVariable', { id, exp }) }
+
 DeclarVar = tipo:TipoDato _ id:Identificador _ ";" {}
           / tipo:TipoDato _ id:Identificador _ "=" _ exp:Expresion _ ";" {}
           / "var" _ id:Identificador _ "=" _ exp:Expresion _ ";" {} // Se infiere el tipo.
@@ -295,14 +304,6 @@ Primitivo = [0-9]+\.[0-9]+  {return crearNodo('Primal', { valor: parseFloat(text
 
 _ = ([ \t\n\r] / Comentarios)*
 
-Comentarios = "//" (![\n] .)*
-            / "/*" (!("*\/") .)* "*\/" // Quitar los \\
-
-// Cosas cambiadas de la gramática original (Backup)
-Numero = [0-9]+( "." [0-9]+ )? {return crearNodo('numero', { valor: parseFloat(text(), 10) })}
-  / "(" _ exp:Expresion _ ")" { return crearNodo('agrupacion', { exp }) }
-  / id:Identificador { return crearNodo('referenciaVariable', { id }) }
-
-Stmt = "print(" _ exp:Expresion _ ")" { return crearNodo('print', { exp }) }
-Llamada = callee:Numero _ params:("(" args:Argumentos? ")" { return args })*{
+tipo:TipoDato _ id:Identificador _ ";" {return crearNodo('declaracionVariable', { id, 'null', tipo })}
+          /
 */
