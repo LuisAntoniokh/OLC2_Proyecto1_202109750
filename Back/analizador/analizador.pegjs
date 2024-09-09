@@ -50,14 +50,9 @@ Parametros = id:Identificador _ params:("," _ ids:Identificador {return ids})* {
 
 StmtnDlc = "System.out.println(" _ exp:ListaExp _ ")" _ ";" { return crearNodo('print', { exp }) }
     / block:Bloque { return block }
-    / "if" _ "(" _ cond:Expresion _ ")" _ iftrue:StmtnDlc iffalse:(
-      _ "else" _ iffalse:StmtnDlc { return iffalse }
-    )? { return crearNodo('if', { cond, iftrue, iffalse }) }
-    / "while" _ "(" _ cond:Expresion _ ")" _ loop:StmtnDlc { return crearNodo('while', {cond, loop})}
-    / "for" _ "(" _ init:ForInit _  cond:Expresion _ ";" _ inc:Expresion _ ")" _ loop:StmtnDlc { return crearNodo('for', {init, cond, inc, loop})}
-    / "break" _ ";" { return crearNodo('break') }
-    / "continue" _ ";" { return crearNodo('continue') }
-    / "return" _ exp:Expresion? _ ";" { return crearNodo('return', { exp }) }
+    / stContr:StmtControl { return stContr }
+    / stCicle:StmtCiclos { return stCicle }
+    / stTrans:StmtTransferencia { return stTrans }
     / exp:Expresion _ ";" { return crearNodo('expresionStmt', { exp }) }
 
 ListaExp = exp:Expresion _ exps:("," _ expre:Expresion { return expre })* {
@@ -66,8 +61,20 @@ ListaExp = exp:Expresion _ exps:("," _ expre:Expresion { return expre })* {
 
 Bloque = "{" _ block:Sentencias* _ "}" { return crearNodo('bloque', { block }) }
 
+StmtControl =  "if" _ "(" _ cond:Expresion _ ")" _ iftrue:StmtnDlc iffalse:(
+      _ "else" _ iffalse:StmtnDlc { return iffalse }
+      )? { return crearNodo('if', { cond, iftrue, iffalse }) }
+    / "switch"
+
+StmtCiclos = "while" _ "(" _ cond:Expresion _ ")" _ loop:StmtnDlc { return crearNodo('while', {cond, loop})}
+    / "for" _ "(" _ init:ForInit _  cond:Expresion _ ";" _ inc:Expresion _ ")" _ loop:StmtnDlc { return crearNodo('for', {init, cond, inc, loop})}
+
 ForInit = dcl:DeclarVar { return dcl }
         / exp:Expresion _ ";" { return exp }
+
+StmtTransferencia = "break" _ ";" { return crearNodo('break') }
+    / "continue" _ ";" { return crearNodo('continue') }
+    / "return" _ exp:Expresion? _ ";" { return crearNodo('return', { exp }) }
 
 Expresion = Asignacion
 
@@ -201,25 +208,17 @@ Sentencias = vdlc:DeclarVar _ { return vdlc }
 //          / adlc:DeclarArr _ {return adlc}
 //          / sdlc:DeclarStr _ {return sdlc}
 
-VarDcl = "var" _ id:Identificador _ "=" _ exp:Expresion _ ";" { return crearNodo('declaracionVariable', { id, exp }) }
-
-DeclarVar = tipo:TipoDato _ id:Identificador _ ";" {}
-          / tipo:TipoDato _ id:Identificador _ "=" _ exp:Expresion _ ";" {}
-          / "var" _ id:Identificador _ "=" _ exp:Expresion _ ";" {} // Se infiere el tipo.
-
 TipoDato = td:"int" { return td }
         / td:"float" { return td }
         / td:"string" { return td }
         / td:"bool" { return td }
         / td:"char" { return td }
 
-Identificador = [a-zA-Z_][a-zA-Z0-9_]* { return text() }
-
 DeclarFunc = td:TipoDato _ id:Identificador _ "(" _ params:Parametros? _ ")" _ block:Bloque { return { td, id, params: params || [], block } }
 
 Parametros = td:TipoDato _ id:Identificador _ params:("," _ tds:TipoDato _ ids:Identificador {return xd})* {return [id, ...params]}
 
-StmtnDlc = "System.out.println(" _ expList:ListaExp _ ")"  {}
+StmtnDlc = "System.out.println(" _ exp:ListaExp _ ")" _ ";" { return crearNodo('print', { exp }) }
         / block:Bloque { return block }
         / stContr:StmtControl { return stContr }
         / stCicle:StmtCiclos { return stCicle }
@@ -313,4 +312,17 @@ _ = ([ \t\n\r] / Comentarios)*
 
 tipo:TipoDato _ id:Identificador _ ";" {return crearNodo('declaracionVariable', { id, 'null', tipo })}
           /
+
+StmtnDlc = "System.out.println(" _ exp:ListaExp _ ")" _ ";" { return crearNodo('print', { exp }) }
+    / block:Bloque { return block }
+    / "if" _ "(" _ cond:Expresion _ ")" _ iftrue:StmtnDlc iffalse:(
+      _ "else" _ iffalse:StmtnDlc { return iffalse }
+    )? { return crearNodo('if', { cond, iftrue, iffalse }) }
+    / "while" _ "(" _ cond:Expresion _ ")" _ loop:StmtnDlc { return crearNodo('while', {cond, loop})}
+    / "for" _ "(" _ init:ForInit _  cond:Expresion _ ";" _ inc:Expresion _ ")" _ loop:StmtnDlc { return crearNodo('for', {init, cond, inc, loop})}
+    / "break" _ ";" { return crearNodo('break') }
+    / "continue" _ ";" { return crearNodo('continue') }
+    / "return" _ exp:Expresion? _ ";" { return crearNodo('return', { exp }) }
+    / exp:Expresion _ ";" { return crearNodo('expresionStmt', { exp }) }
+
 */

@@ -258,7 +258,7 @@ export class InterpreterVisitor extends BaseVisitor {
     visitIf(node) {
         const condicion = node.cond.accept(this);
 
-        if (condicion) {
+        if (condicion.valor) {
             node.iftrue.accept(this);
             return;
         }
@@ -274,7 +274,7 @@ export class InterpreterVisitor extends BaseVisitor {
     visitWhile(node) {
         const startingEnv = this.entornoActual;
         try{
-            while (node.cond.accept(this)) {
+            while (node.cond.accept(this).valor) {
                 node.loop.accept(this);
             }
         } catch (error) {
