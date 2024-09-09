@@ -60,6 +60,9 @@
 
  * @typedef {import('./nodos').FuncDcl} FuncDcl
 
+
+ * @typedef {import('./nodos').Switch} Switch
+
  */
 
 
@@ -247,6 +250,15 @@ export class BaseVisitor {
      */
     visitFuncDcl(node) {
         throw new Error('Metodo visitFuncDcl no implementado');
+    }
+    
+
+    /**
+     * @param {Switch} node
+     * @returns {any}
+     */
+    visitSwitch(node) {
+        throw new Error('Metodo visitSwitch no implementado');
     }
     
 }

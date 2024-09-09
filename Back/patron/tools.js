@@ -317,6 +317,27 @@ const configuracionNodos = [
                 description: 'Bloque de sentencias de la funcion'
             }
         ]
+    }, 
+    {
+        name: 'Switch',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'exp',
+                type: 'Expresion',
+                description: 'Expresion del switch'
+            },
+            {
+                name: 'cases',
+                type: 'Array<{exp: Expresion, stmts: Expresion[]}>',
+                description: 'Lista de casos del switch'
+            },
+            {
+                name: 'defo',
+                type: '{stmts: Expresion[]} | undefined',
+                description: 'Caso por defecto del switch'
+            }
+        ]
     }
 ]
 

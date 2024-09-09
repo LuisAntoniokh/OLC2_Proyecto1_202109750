@@ -632,4 +632,45 @@ export class FuncDcl extends Expresion {
     }
 }
     
-export default { Expresion, Primal, OperacionBinaria, OperacionUnaria, Agrupacion, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt, Asignacion, Bloque, If, While, For, Break, Continue, Return, Llamada, FuncDcl }
+export class Switch extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.exp Expresion del switch
+ * @param {Array<{exp: Expresion, stmts: Expresion[]}>} options.cases Lista de casos del switch
+ * @param {{stmts: Expresion[]} | undefined} options.defo Caso por defecto del switch
+    */
+    constructor({ exp, cases, defo }) {
+        super();
+        
+        /**
+         * Expresion del switch
+         * @type {Expresion}
+        */
+        this.exp = exp;
+
+
+        /**
+         * Lista de casos del switch
+         * @type {Array<{exp: Expresion, stmts: Expresion[]}>}
+        */
+        this.cases = cases;
+
+
+        /**
+         * Caso por defecto del switch
+         * @type {{stmts: Expresion[]} | undefined}
+        */
+        this.defo = defo;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitSwitch(this);
+    }
+}
+    
+export default { Expresion, Primal, OperacionBinaria, OperacionUnaria, Agrupacion, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt, Asignacion, Bloque, If, While, For, Break, Continue, Return, Llamada, FuncDcl, Switch }

@@ -19,7 +19,8 @@
       'continue': nodos.Continue,
       'return': nodos.Return,
       'llamada': nodos.Llamada,
-      'dclFunc' : nodos.FuncDcl
+      'dclFunc' : nodos.FuncDcl,
+      'switch': nodos.Switch
     }
 
     const nodo = new tipos[tipoNodo](propert)
@@ -64,7 +65,13 @@ Bloque = "{" _ block:Sentencias* _ "}" { return crearNodo('bloque', { block }) }
 StmtControl =  "if" _ "(" _ cond:Expresion _ ")" _ iftrue:StmtnDlc iffalse:(
       _ "else" _ iffalse:StmtnDlc { return iffalse }
       )? { return crearNodo('if', { cond, iftrue, iffalse }) }
-    / "switch"
+    /  suich:Switch { return suich }
+
+Switch = "switch" _ "(" _ exp:Expresion _ ")" _ "{" _ cases:Case* defo:Default? _ "}" { return crearNodo('switch', { exp, cases, defo }) }
+
+Case = "case" _ exp:Expresion _ ":" _ stmts:Sentencias* { return { exp, stmts } }
+
+Default = "default" _ ":" _ stmts:Sentencias* { return { stmts } }
 
 StmtCiclos = "while" _ "(" _ cond:Expresion _ ")" _ loop:StmtnDlc { return crearNodo('while', {cond, loop})}
     / "for" _ "(" _ init:ForInit _  cond:Expresion _ ";" _ inc:Expresion _ ")" _ loop:StmtnDlc { return crearNodo('for', {init, cond, inc, loop})}

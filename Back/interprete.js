@@ -377,4 +377,46 @@ export class InterpreterVisitor extends BaseVisitor {
         }
         return { valor : node.valor, tipo : node.tipo };
     }
+
+    /**
+      * @type {BaseVisitor['visitSwitch']}
+      */
+    visitSwitch(node) {
+        const switchExp = node.exp.accept(this);
+        let matched = false;
+    
+        for (let i = 0; i < node.cases.length; i++) {
+            const caseNode = node.cases[i];
+            const caseExp = caseNode.exp.accept(this);
+    
+            if (matched || switchExp.valor === caseExp.valor) {
+                matched = true;
+                try {
+                    for (const stmt of caseNode.stmts) {
+                        stmt.accept(this);
+                    }
+                } catch (error) {
+                    if (error instanceof BreakExcp) {
+                        break;
+                    } else {
+                        throw error;
+                    }
+                }
+            }
+        }
+    
+        if (!matched && node.defo) {
+            try {
+                for (const stmt of node.defo.stmts) {
+                    stmt.accept(this);
+                }
+            } catch (error) {
+                if (error instanceof BreakExcp) {
+                    // Do nothing, just exit the switch
+                } else {
+                    throw error;
+                }
+            }
+        }
+    }
 }
