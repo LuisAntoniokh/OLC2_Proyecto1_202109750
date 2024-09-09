@@ -149,7 +149,7 @@ const configuracionNodos = [
         props: [
             {
                 name: 'exp',
-                type: 'Expresion',
+                type: 'Expresion[]',
                 description: 'Expresion a imprimir'
             }
         ]

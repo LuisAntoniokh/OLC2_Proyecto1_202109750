@@ -48,7 +48,7 @@ DeclarFunc = "function" _ id:Identificador _ "(" _ params: Parametros? _ ")" _  
 
 Parametros = id:Identificador _ params:("," _ ids:Identificador {return ids})* {return [id, ...params]}
 
-StmtnDlc = "System.out.println(" _ exp:Expresion _ ")" { return crearNodo('print', { exp }) }
+StmtnDlc = "System.out.println(" _ exp:ListaExp _ ")" _ ";" { return crearNodo('print', { exp }) }
     / block:Bloque { return block }
     / "if" _ "(" _ cond:Expresion _ ")" _ iftrue:StmtnDlc iffalse:(
       _ "else" _ iffalse:StmtnDlc { return iffalse }
@@ -59,6 +59,10 @@ StmtnDlc = "System.out.println(" _ exp:Expresion _ ")" { return crearNodo('print
     / "continue" _ ";" { return crearNodo('continue') }
     / "return" _ exp:Expresion? _ ";" { return crearNodo('return', { exp }) }
     / exp:Expresion _ ";" { return crearNodo('expresionStmt', { exp }) }
+
+ListaExp = exp:Expresion _ exps:("," _ expre:Expresion { return expre })* {
+    return [exp, ...exps];
+}
 
 Bloque = "{" _ block:Sentencias* _ "}" { return crearNodo('bloque', { block }) }
 

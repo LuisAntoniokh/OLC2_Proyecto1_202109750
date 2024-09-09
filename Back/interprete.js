@@ -193,22 +193,8 @@ export class InterpreterVisitor extends BaseVisitor {
         const nombreVariable = node.id;
         const tipoVariable = node.tipo;
         if (node.exp === undefined) {
-            if(tipoVariable === 'int'){
-                this.entornoActual.set(nombreVariable, 0, tipoVariable);
-                return;
-            } else if(tipoVariable === 'float'){
-                this.entornoActual.set(nombreVariable, (0.0).toFixed(4), tipoVariable);
-                return;
-            } else if(tipoVariable === 'char'){
-                this.entornoActual.set(nombreVariable, '\u0000', tipoVariable);
-                return;
-            } else if(tipoVariable === 'bool'){
-                this.entornoActual.set(nombreVariable, true, tipoVariable);
-                return;
-            } else if(tipoVariable === 'string'){
-                this.entornoActual.set(nombreVariable, "", tipoVariable);
-                return;
-            }     
+            this.entornoActual.set(nombreVariable, null, tipoVariable);
+            return;
         } 
         if (tipoVariable === "var"){
             const valorVariable = node.exp.accept(this);
@@ -235,8 +221,8 @@ export class InterpreterVisitor extends BaseVisitor {
       * @type {BaseVisitor['visitPrint']}
       */
     visitPrint(node) {
-        const valor = node.exp.accept(this);
-        this.salida += valor.valor + '\n';
+        const valores = node.exp.map(exp => exp.accept(this).valor);
+        this.salida += valores.join(' ') + '\n';
     }
 
 
