@@ -595,13 +595,21 @@ export class FuncDcl extends Expresion {
 
     /**
     * @param {Object} options
-    * @param {string} options.id Identificador de la funcion
+    * @param {string} options.td Tipo de dato de la funcion
+ * @param {string} options.id Identificador de la funcion
  * @param {string[]} options.params Parametros de la funcion
  * @param {Bloque} options.block Bloque de sentencias de la funcion
     */
-    constructor({ id, params, block }) {
+    constructor({ td, id, params, block }) {
         super();
         
+        /**
+         * Tipo de dato de la funcion
+         * @type {string}
+        */
+        this.td = td;
+
+
         /**
          * Identificador de la funcion
          * @type {string}

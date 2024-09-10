@@ -302,6 +302,11 @@ const configuracionNodos = [
         extends: 'Expresion',
         props: [
             {
+                name: 'td',
+                type: 'string',
+                description: 'Tipo de dato de la funcion'
+            },
+            {
                 name: 'id',
                 type: 'string',
                 description: 'Identificador de la funcion'

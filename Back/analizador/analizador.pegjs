@@ -45,9 +45,18 @@ TipoDato = td:"int" { return td }
         / td:"bool" { return td }
         / td:"char" { return td }
 
-DeclarFunc = "function" _ id:Identificador _ "(" _ params: Parametros? _ ")" _  block:Bloque { return crearNodo('dclFunc', { id, params: params || [], block }) }
+DeclarFunc = td:FuncTipoDato _ id:Identificador _ "(" _ params: Parametros? _ ")" _  block:Bloque { return crearNodo('dclFunc', { td,  id, params: params || [], block }) }
 
-Parametros = id:Identificador _ params:("," _ ids:Identificador {return ids})* {return [id, ...params]}
+Parametros = param:Parametro _ params:("," _ parame:Parametro { return parame })* { return [param, ...params] }
+
+Parametro = tipo:TipoDato _ id:Identificador { return { tipo, id } }
+
+FuncTipoDato = td:"int" { return td }
+        / td:"float" { return td }
+        / td:"string" { return td }
+        / td:"bool" { return td }
+        / td:"char" { return td }
+        / td:"void" { return td }
 
 StmtnDlc = "System.out.println(" _ exp:ListaExp _ ")" _ ";" { return crearNodo('print', { exp }) }
     / block:Bloque { return block }

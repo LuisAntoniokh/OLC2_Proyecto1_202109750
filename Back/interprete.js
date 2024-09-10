@@ -12,7 +12,7 @@ export class InterpreterVisitor extends BaseVisitor {
         super();
         this.entornoActual = new Entorno();
         Object.entries(embebidas).forEach(([nombre, funcion]) => {
-            this.entornoActual.set(nombre, funcion);
+            this.entornoActual.set(nombre, funcion, 'embebida');
         });
         this.salida = '';
 
@@ -201,11 +201,8 @@ export class InterpreterVisitor extends BaseVisitor {
             this.entornoActual.set(nombreVariable, valorVariable.valor, valorVariable.tipo);
             return;
         }
-        else {
-            const valorVariable = node.exp.accept(this);
-            this.entornoActual.set(nombreVariable, valorVariable.valor, valorVariable.tipo);
-            return;
-        }
+        const valorVariable = node.exp.accept(this);
+        this.entornoActual.set(nombreVariable, valorVariable.valor, tipoVariable);
     }
 
     /**
@@ -213,7 +210,11 @@ export class InterpreterVisitor extends BaseVisitor {
       */
     visitReferenciaVariable(node) {
         const nombreVariable = node.id;
-        return this.entornoActual.get(nombreVariable);
+        const value = this.entornoActual.get(nombreVariable);
+        if (value === undefined) {
+            throw new Error(`Variable no definida: ${nombreVariable}`);
+        }
+        return value;
     }
 
 
@@ -348,8 +349,8 @@ export class InterpreterVisitor extends BaseVisitor {
       * @type {BaseVisitor['visitLlamada']}
       */
     visitLlamada(node){
-        const funcion = node.callee.accept(this);
-        const argumentos = node.args.map(arg => arg.accept(this));
+        const funcion = node.callee.accept(this).valor;
+        const argumentos = node.args.map(arg => arg.accept(this).valor);
         if(!(funcion instanceof Invocable)){
             throw new Error('No es invocable');
         }
@@ -364,7 +365,7 @@ export class InterpreterVisitor extends BaseVisitor {
       */
     visitFuncDcl(node){
         const funcion = new FuncionForanea(node, this.entornoActual);
-        this.entornoActual.set(node.id, funcion);
+        this.entornoActual.set(node.id, funcion, node.td);
     }
     
     /**

@@ -29,7 +29,7 @@ export class FuncionForanea extends Invocable{
     invocar(interprete, args) {
         const entornoNuevo = new Entorno(this.clousure);
         this.nodo.params.forEach((param, i) => {
-            entornoNuevo.set(param, args[i]);
+            entornoNuevo.set(param.id, args[i], param.tipo);
         });
         const entornoAntesDeLaLlamada = interprete.entornoActual;
         interprete.entornoActual = entornoNuevo;
@@ -44,6 +44,6 @@ export class FuncionForanea extends Invocable{
         }
 
         interprete.entornoActual = entornoAntesDeLaLlamada;
-        return null
+        return null;
     }
 }
