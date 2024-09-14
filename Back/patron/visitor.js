@@ -66,6 +66,9 @@
 
  * @typedef {import('./nodos').Ternario} Ternario
 
+
+ * @typedef {import('./nodos').Embebidas} Embebidas
+
  */
 
 
@@ -271,6 +274,15 @@ export class BaseVisitor {
      */
     visitTernario(node) {
         throw new Error('Metodo visitTernario no implementado');
+    }
+    
+
+    /**
+     * @param {Embebidas} node
+     * @returns {any}
+     */
+    visitEmbebidas(node) {
+        throw new Error('Metodo visitEmbebidas no implementado');
     }
     
 }

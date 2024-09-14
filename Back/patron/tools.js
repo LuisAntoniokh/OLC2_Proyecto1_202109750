@@ -365,7 +365,24 @@ const configuracionNodos = [
                 description: 'Bloque de sentencias del else'
             }
         ]
-    }
+    },
+    // return crearNodo('embebidas', { tipo, exp }); 
+    {
+        name: 'Embebidas',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'tipo',
+                type: 'string',
+                description: 'Tipo de embebida'
+            },
+            {
+                name: 'exp',
+                type: 'Expresion',
+                description: 'Expresion de la embebida'
+            }
+        ]
+    },
 ]
 
 let code = ''

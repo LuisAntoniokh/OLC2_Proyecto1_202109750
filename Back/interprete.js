@@ -432,4 +432,28 @@ export class InterpreterVisitor extends BaseVisitor {
             return node.iffalse.accept(this);
         }
     }
+
+    /**
+      * @type {BaseVisitor['visitEmbebidas']}
+      */
+    visitEmbebidas(node){
+        const tipoEmb = node.tipo;
+        const val = node.exp.accept(this);
+        switch (tipoEmb) {
+            case 'parseInt(':
+                return { valor: parseInt(val.valor, 10), tipo: 'int' };
+            case 'parsefloat(':
+                return { valor: parseFloat(val.valor).toFixed(4), tipo: 'float' };
+            case 'toString(':
+                return { valor: val.valor.toString(), tipo: 'string' };
+            case 'toLowerCase(':
+                return { valor: "\""+val.valor.toLowerCase()+"\"", tipo: 'string' };
+            case 'toUpperCase(':
+                return { valor: "\""+val.valor.toUpperCase()+"\"", tipo: 'string' };
+            case 'typeof':
+                return { valor: val.tipo, tipo: 'string' };
+            default:
+                throw new Error('Tipo embebido no soportado');
+        }
+    }
 }

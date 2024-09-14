@@ -722,4 +722,37 @@ export class Ternario extends Expresion {
     }
 }
     
-export default { Expresion, Primal, OperacionBinaria, OperacionUnaria, Agrupacion, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt, Asignacion, Bloque, If, While, For, Break, Continue, Return, Llamada, FuncDcl, Switch, Ternario }
+export class Embebidas extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.tipo Tipo de embebida
+ * @param {Expresion} options.exp Expresion de la embebida
+    */
+    constructor({ tipo, exp }) {
+        super();
+        
+        /**
+         * Tipo de embebida
+         * @type {string}
+        */
+        this.tipo = tipo;
+
+
+        /**
+         * Expresion de la embebida
+         * @type {Expresion}
+        */
+        this.exp = exp;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitEmbebidas(this);
+    }
+}
+    
+export default { Expresion, Primal, OperacionBinaria, OperacionUnaria, Agrupacion, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt, Asignacion, Bloque, If, While, For, Break, Continue, Return, Llamada, FuncDcl, Switch, Ternario, Embebidas }

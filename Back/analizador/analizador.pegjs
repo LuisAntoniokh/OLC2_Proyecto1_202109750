@@ -21,7 +21,8 @@
       'llamada': nodos.Llamada,
       'dclFunc' : nodos.FuncDcl,
       'switch': nodos.Switch,
-      'ternario': nodos.Ternario
+      'ternario': nodos.Ternario,
+      'embebidas': nodos.Embebidas
     }
 
     const nodo = new tipos[tipoNodo](propert)
@@ -93,11 +94,18 @@ StmtTransferencia = "break" _ ";" { return crearNodo('break') }
     / "continue" _ ";" { return crearNodo('continue') }
     / "return" _ exp:Expresion? _ ";" { return crearNodo('return', { exp }) }
 
+TipoEmb = tem:"parseInt("  { return tem }
+      / tem:"parsefloat("  { return tem }
+      / tem:"toString("    { return tem }
+      / tem:"toLowerCase(" { return tem }
+      / tem:"toUpperCase(" { return tem }
+
 Expresion = Asignacion
 
 Tercero = cond:OR _ "?" _ iftrue:Expresion _ ":" _ iffalse:Expresion { return crearNodo('ternario', {cond, iftrue, iffalse}); }
 
-Asignacion = id:Identificador _ "=" _ asgn:Asignacion { return crearNodo('asignacion', {id, asgn} )}
+Asignacion = tipo:"typeof" _ exp:Expresion _ { return crearNodo('embebidas', { tipo, exp }); }
+            / id:Identificador _ "=" _ asgn:Asignacion { return crearNodo('asignacion', {id, asgn} )}            
             / id:Identificador _ "+=" _ asgn:Asignacion { return crearNodo('asignacion', { id, asgn: crearNodo('binaria', { op: '+', izq: crearNodo('referenciaVariable', { id }), der: asgn }) }) }
             / id:Identificador _ "-=" _ asgn:Asignacion { return crearNodo('asignacion', { id, asgn: crearNodo('binaria', { op: '-', izq: crearNodo('referenciaVariable', { id }), der: asgn }) }) }
             / tercer:Tercero { return tercer }
@@ -194,11 +202,12 @@ Identificador = [a-zA-Z_][a-zA-Z0-9_]* { return text() }
 
 Primitivo = [0-9]+"."[0-9]+ {return crearNodo('Primal', { valor: parseFloat(text(), 10), tipo: 'float' })}
   / [0-9]+                  {return crearNodo('Primal', { valor: parseInt(text(), 10), tipo: 'int' })}
-  / "true"                  {return crearNodo('Primal', { valor: true, tipo: 'bool' })}
-  / "false"                 {return crearNodo('Primal', { valor: false, tipo: 'bool' })}
+  / "true"                  {return crearNodo('Primal', { valor: true, tipo: 'boolean' })}
+  / "false"                 {return crearNodo('Primal', { valor: false, tipo: 'boolean' })}
   / str:String              { return str }
   / "\'" [^'] "\'"          {return crearNodo('Primal', { valor: text().slice(1, -1), tipo: 'char' })}
   / "(" _ exp:Expresion _ ")" { return crearNodo('agrupacion', { exp }) }
+  / tipo:TipoEmb _ exp:Expresion _ ")" { return crearNodo('embebidas', { tipo, exp }); }
   / id:Identificador { return crearNodo('referenciaVariable', { id }) }
 
 String
@@ -217,132 +226,3 @@ _ = ([ \t\n\r] / Comentarios)*
 
 Comentarios = "//" (![\n] .)*
             / "/*" (!("*/") .)* "*/"
-
-/*
-Start = _ dlcs:Sentencias* _ { return dlcs }
-
-Sentencias = vdlc:DeclarVar _ { return vdlc }
-            / fdlc:DeclarFunc _ { return fdlc }
-            / ndlc:StmtnDlc _ { return ndlc }    
-
-//          / adlc:DeclarArr _ {return adlc}
-//          / sdlc:DeclarStr _ {return sdlc}
-
-TipoDato = td:"int" { return td }
-        / td:"float" { return td }
-        / td:"string" { return td }
-        / td:"bool" { return td }
-        / td:"char" { return td }
-
-DeclarFunc = td:TipoDato _ id:Identificador _ "(" _ params:Parametros? _ ")" _ block:Bloque { return { td, id, params: params || [], block } }
-
-Parametros = td:TipoDato _ id:Identificador _ params:("," _ tds:TipoDato _ ids:Identificador {return xd})* {return [id, ...params]}
-
-StmtnDlc = "System.out.println(" _ exp:ListaExp _ ")" _ ";" { return crearNodo('print', { exp }) }
-        / block:Bloque { return block }
-        / stContr:StmtControl { return stContr }
-        / stCicle:StmtCiclos { return stCicle }
-        / stTrans:StmtTransferencia { return stTrans }
-        / exp:Expresion _ ";" { return crearNodo('expresionStmt', { exp }) }
-
-ListaExp = exp:Expresion _ exps:("," _ expre:Expresion { return expre })* { return [exp, ...exps] }
-
-StmtControl = "if" _ "(" _ cond:Expresion _ ")" _ iftrue:StmtnDlc iffalse:(
-      _ "else" _ iffalse:StmtnDlc { return iffalse }
-      )? { return crearNodo('if', { cond, iftrue, iffalse }) }
-    / "switch"
-
-StmtCiclos = "while" _ "(" _ cond:Expresion _ ")" _ loop:StmtnDlc { return crearNodo('while', {cond, loop})}
-    / "for" _ "(" _ init:ForInit _  cond:Expresion _ ";" _ inc:Expresion _ ")" _ loop:StmtnDlc { return crearNodo('for', {init, cond, inc, loop})}
-
-ForInit = dcl:DeclarVar { return dcl }
-        / exp:Expresion _ ";" { return exp }
-
-StmtTransferencia = "break" _ ";" { return crearNodo('break') }
-    / "continue" _ ";" { return crearNodo('continue') }
-    / "return" _ exp:Expresion? _ ";" { return crearNodo('return', { exp }) }
-
-Bloque = "{" _ block:Sentencias* _ "}" { return crearNodo('bloque', { block }) }
-
-Expresion = Asignacion
-
-Asignacion = id:Identificador _ "=" _ asgn:Asignacion { return crearNodo('asignacion', {id, asgn} )}
-            / Comparacion
-
-Comparacion = izq:Adicion expansion:(
-    _ op:("<=" / "==") _ der:Adicion { return { tipo: op, der } }
-  )* { 
-    return expansion.reduce(
-      (operacionAnterior, operacionActual) => {
-        const { tipo, der } = operacionActual
-        return crearNodo('binaria', { op:tipo, izq: operacionAnterior, der })
-      },
-      izq
-    )
-  }
-
-Adicion = izq:Multiplicacion expansion:(
-  _ op:("+" / "-") _ der:Multiplicacion { return { tipo: op, der } }
-  )* { 
-  return expansion.reduce(
-    (opPrevia, opActual) => {
-      const { tipo, der } = opActual
-      return crearNodo('binaria', { op:tipo, izq: opPrevia, der })
-    },
-    izq
-  )
-}
-
-Multiplicacion = izq:Unaria expansion:(
-  _ op:("*" / "/" / "%") _ der:Unaria { return { tipo: op, der } }
-)* {
-    return expansion.reduce(
-      (opPrevia, opActual) => {
-        const { tipo, der } = opActual
-        return crearNodo('binaria', { op:tipo, izq: opPrevia, der })
-      },
-      izq
-    )
-}
-
-Unaria = "-" _ num:Unaria { return crearNodo('unaria', { op: '-', exp: num }) }
-/ Llamada
-
-Llamada = callee:Primitivo _ params:("(" args:Argumentos? ")" { return args })*{
-  return params.reduce(
-    (callee, args) => {
-      return crearNodo('llamada', {callee, args: args || [] } )
-    },
-    callee
-  )
-}
-
-Argumentos = arg:Expresion _ args:("," _ exp:Expresion { return exp })* { return [arg, ...args] }
-
-Primitivo = [0-9]+\.[0-9]+  {return crearNodo('Primal', { valor: parseFloat(text(), 4), tipo: 'float' })}
-  / [0-9]+                  {return crearNodo('Primal', { valor: parseInt(text(), 1), tipo: 'int' })}
-  / "true"                  {return crearNodo('Primal', { valor: "true", tipo: 'bool' })}
-  / "false"                 {return crearNodo('Primal', { valor: "false", tipo: 'bool' })}
-  / \".*\"                  {return crearNodo('Primal', { valor: text(), tipo: 'string' })}
-  / \'.\'                   {return crearNodo('Primal', { valor: text(), tipo: 'char' })}
-  / "(" _ exp:Expresion _ ")" { return crearNodo('agrupacion', { exp }) }
-  / id:Identificador { return crearNodo('referenciaVariable', { id }) }
-
-_ = ([ \t\n\r] / Comentarios)*
-
-tipo:TipoDato _ id:Identificador _ ";" {return crearNodo('declaracionVariable', { id, 'null', tipo })}
-          /
-
-StmtnDlc = "System.out.println(" _ exp:ListaExp _ ")" _ ";" { return crearNodo('print', { exp }) }
-    / block:Bloque { return block }
-    / "if" _ "(" _ cond:Expresion _ ")" _ iftrue:StmtnDlc iffalse:(
-      _ "else" _ iffalse:StmtnDlc { return iffalse }
-    )? { return crearNodo('if', { cond, iftrue, iffalse }) }
-    / "while" _ "(" _ cond:Expresion _ ")" _ loop:StmtnDlc { return crearNodo('while', {cond, loop})}
-    / "for" _ "(" _ init:ForInit _  cond:Expresion _ ";" _ inc:Expresion _ ")" _ loop:StmtnDlc { return crearNodo('for', {init, cond, inc, loop})}
-    / "break" _ ";" { return crearNodo('break') }
-    / "continue" _ ";" { return crearNodo('continue') }
-    / "return" _ exp:Expresion? _ ";" { return crearNodo('return', { exp }) }
-    / exp:Expresion _ ";" { return crearNodo('expresionStmt', { exp }) }
-
-*/
