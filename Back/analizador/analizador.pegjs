@@ -20,7 +20,8 @@
       'return': nodos.Return,
       'llamada': nodos.Llamada,
       'dclFunc' : nodos.FuncDcl,
-      'switch': nodos.Switch
+      'switch': nodos.Switch,
+      'ternario': nodos.Ternario
     }
 
     const nodo = new tipos[tipoNodo](propert)
@@ -94,9 +95,12 @@ StmtTransferencia = "break" _ ";" { return crearNodo('break') }
 
 Expresion = Asignacion
 
+Tercero = cond:OR _ "?" _ iftrue:Expresion _ ":" _ iffalse:Expresion { return crearNodo('ternario', {cond, iftrue, iffalse}); }
+
 Asignacion = id:Identificador _ "=" _ asgn:Asignacion { return crearNodo('asignacion', {id, asgn} )}
             / id:Identificador _ "+=" _ asgn:Asignacion { return crearNodo('asignacion', { id, asgn: crearNodo('binaria', { op: '+', izq: crearNodo('referenciaVariable', { id }), der: asgn }) }) }
             / id:Identificador _ "-=" _ asgn:Asignacion { return crearNodo('asignacion', { id, asgn: crearNodo('binaria', { op: '-', izq: crearNodo('referenciaVariable', { id }), der: asgn }) }) }
+            / tercer:Tercero { return tercer }
             / OR
 
 OR = izq:AND expansion:(

@@ -420,4 +420,16 @@ export class InterpreterVisitor extends BaseVisitor {
             }
         }
     }
+
+    /**
+      * @type {BaseVisitor['visitTernario']}
+      */
+    visitTernario(node) {
+        const cond = node.cond.accept(this);
+        if (cond.valor) {
+            return node.iftrue.accept(this);
+        } else {
+            return node.iffalse.accept(this);
+        }
+    }
 }

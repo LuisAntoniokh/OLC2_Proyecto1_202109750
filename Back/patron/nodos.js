@@ -681,4 +681,45 @@ export class Switch extends Expresion {
     }
 }
     
-export default { Expresion, Primal, OperacionBinaria, OperacionUnaria, Agrupacion, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt, Asignacion, Bloque, If, While, For, Break, Continue, Return, Llamada, FuncDcl, Switch }
+export class Ternario extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {Expresion} options.cond Condicion del ternario
+ * @param {Expresion} options.iftrue Bloque de sentencias del if
+ * @param {Expresion} options.iffalse Bloque de sentencias del else
+    */
+    constructor({ cond, iftrue, iffalse }) {
+        super();
+        
+        /**
+         * Condicion del ternario
+         * @type {Expresion}
+        */
+        this.cond = cond;
+
+
+        /**
+         * Bloque de sentencias del if
+         * @type {Expresion}
+        */
+        this.iftrue = iftrue;
+
+
+        /**
+         * Bloque de sentencias del else
+         * @type {Expresion}
+        */
+        this.iffalse = iffalse;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitTernario(this);
+    }
+}
+    
+export default { Expresion, Primal, OperacionBinaria, OperacionUnaria, Agrupacion, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt, Asignacion, Bloque, If, While, For, Break, Continue, Return, Llamada, FuncDcl, Switch, Ternario }

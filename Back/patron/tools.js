@@ -343,6 +343,28 @@ const configuracionNodos = [
                 description: 'Caso por defecto del switch'
             }
         ]
+    },
+    // return crearNodo('ternario', {cond, iftrue, iffalse}); 
+    {
+        name: 'Ternario',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'cond',
+                type: 'Expresion',
+                description: 'Condicion del ternario'
+            },
+            {
+                name: 'iftrue',
+                type: 'Expresion',
+                description: 'Bloque de sentencias del if'
+            },
+            {
+                name: 'iffalse',
+                type: 'Expresion',
+                description: 'Bloque de sentencias del else'
+            }
+        ]
     }
 ]
 

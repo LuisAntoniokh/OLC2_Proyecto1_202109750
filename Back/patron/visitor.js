@@ -63,6 +63,9 @@
 
  * @typedef {import('./nodos').Switch} Switch
 
+
+ * @typedef {import('./nodos').Ternario} Ternario
+
  */
 
 
@@ -259,6 +262,15 @@ export class BaseVisitor {
      */
     visitSwitch(node) {
         throw new Error('Metodo visitSwitch no implementado');
+    }
+    
+
+    /**
+     * @param {Ternario} node
+     * @returns {any}
+     */
+    visitTernario(node) {
+        throw new Error('Metodo visitTernario no implementado');
     }
     
 }
