@@ -3,13 +3,19 @@ import { InterpreterVisitor } from './Back/interprete.js';
 
 let tabCount = 0;
 let openedTabs = {};
+let errCount = 0;
 
 const editor = document.getElementById('codigoFuente')
 const cons = document.getElementById('consolaOutput')
+const tablaErrores = document.getElementById('tablaErrores');
+const tablaSimbolos = document.getElementById('tablaSimbolos');
+
 document.getElementById('ejecutarBtn').addEventListener('click', analizador);
 document.getElementById('crearArchivoBtn').addEventListener('click', crearArchivo);
 document.getElementById('abrirArchivoBtn').addEventListener('click', abrirArchivo);
 document.getElementById('guardarArchivoBtn').addEventListener('click', guardarArchivo);
+document.getElementById('reporteErroresBtn').addEventListener('click', mostrarErrores);
+document.getElementById('reporteSimbolosBtn').addEventListener('click', mostrarSimbolos);
 
 function crearArchivo() {
     tabCount++;
@@ -91,15 +97,150 @@ function seleccionarTab(tab) {
 
 function analizador() {
     const codigoFuente = editor.value;
+    errCount = 0;
+    tablaErrores.innerHTML = '';
+    tablaSimbolos.innerHTML = '';
     try {
-    const arbol = parse(codigoFuente);
-    console.log("AST generado:", JSON.stringify(arbol, null, 2))
-    const interprete = new InterpreterVisitor();
-    console.log({arbol})
-    arbol.forEach(arbol => arbol.accept(interprete))
-    cons.innerHTML = interprete.salida;
+        const arbol = parse(codigoFuente);
+        console.log("AST generado:", JSON.stringify(arbol, null, 2))
+        const interprete = new InterpreterVisitor();
+        console.log({arbol})
+        arbol.forEach(arbol => arbol.accept(interprete))
+        cons.innerHTML = interprete.salida;
+        llenarTablaSimbolos(interprete.symbolTable.getSymbols());
     } catch (error) {
         console.log(error)
-        console.log(error.message + " en la linea " + error.location.start.line + " y columna " + error.location.start.column)
+        // console.log(error.message + " en la linea " + error.location.start.line + " y columna " + error.location.start.column)
+        agregarError(error.message, error.location.start.line, error.location.start.column, 'Sintáctico');
     }
+}
+
+function agregarError(descripcion, linea, columna, tipo) {
+    errCount++;
+    const row = `<tr>
+        <td>${errCount}</td>
+        <td>${descripcion}</td>
+        <td>${linea}</td>
+        <td>${columna}</td>
+        <td>${tipo}</td>
+    </tr>`;
+    if (!tablaErrores.querySelector('table')) {
+        tablaErrores.innerHTML = `<table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Descripción</th>
+                    <th>Línea</th>
+                    <th>Columna</th>
+                    <th>Tipo</th>
+                </tr>
+            </thead>
+            <tbody>${row}</tbody>
+        </table>`;
+    } else {
+        tablaErrores.querySelector('tbody').innerHTML += row;
+    }
+}
+
+function llenarTablaSimbolos(symbols) {
+    if (symbols.length > 0) {
+        let rows = symbols.map((symbol, index) => `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${symbol.id}</td>
+                <td>${symbol.tipoSimbolo}</td>
+                <td>${symbol.tipoDato}</td>
+                <td>${symbol.ambito}</td>
+                <td>${symbol.linea}</td>
+                <td>${symbol.columna}</td>
+            </tr>
+        `).join('');
+        tablaSimbolos.innerHTML = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>ID variable</th>
+                        <th>Tipo símbolo</th>
+                        <th>Tipo dato</th>
+                        <th>Ámbito</th>
+                        <th>Línea</th>
+                        <th>Columna</th>
+                    </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>
+        `;
+    }
+}
+
+function mostrarErrores() {
+    const contenidoErrores = tablaErrores.innerHTML;
+    openReport(contenidoErrores, 'Reporte de Errores');
+}
+
+function mostrarSimbolos() {
+    const contenidoSimbolos = tablaSimbolos.innerHTML;
+    openReport(contenidoSimbolos, 'Reporte Tabla de Símbolos');
+}
+
+function openReport(contenido, titulo) {
+    const nuevaVentana = window.open('', titulo, 'width=800,height=600');
+    nuevaVentana.document.write(`
+        <html>
+            <head>
+                <title>${titulo}</title>
+                <style>
+                    body {
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        padding: 20px;
+                        background: linear-gradient(135deg, #2C3E50, #4CA1AF);
+                        color: #FFFFFF;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        background-color: #F9F9F9;
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                        overflow: hidden;
+                    }
+                    th, td {
+                        padding: 15px;
+                        border: 1px solid #ddd;
+                        text-align: left;
+                    }
+                    th {
+                        background-color: #34495E; 
+                        color: #ECF0F1; 
+                        text-transform: uppercase;
+                        font-weight: bold;
+                    }
+                    td {
+                        color: #2C3E50; 
+                    }
+                    tr:nth-child(even) {
+                        background-color: #EAECEE; 
+                    }
+                    tr:hover {
+                        background-color: #D5DBDB;
+                        transition: background-color 0.3s ease;
+                    }
+                    caption {
+                        margin-bottom: 15px;
+                        font-size: 1.7em;
+                        font-weight: bold;
+                        color: #ECF0F1; 
+                        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+                    }
+                </style>
+            </head>
+            <body>
+                <table>
+                    <caption>${titulo}</caption>
+                    ${contenido}
+                </table>
+            </body>
+        </html>
+    `);
+    nuevaVentana.document.close();
 }

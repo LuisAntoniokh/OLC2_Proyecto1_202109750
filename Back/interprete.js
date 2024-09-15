@@ -5,6 +5,7 @@ import { BreakExcp, ContinueExcp, ReturnExcp } from "./Entorno/transferencia.js"
 import { Invocable } from "./funciones/invocables.js";
 import { embebidas } from "./funciones/embebidas.js";
 import { FuncionForanea } from "./funciones/foranea.js";
+import { SymbolTable } from "./Entorno/simbolo.js";
 
 export class InterpreterVisitor extends BaseVisitor {
 
@@ -15,6 +16,7 @@ export class InterpreterVisitor extends BaseVisitor {
             this.entornoActual.set(nombre, funcion, 'embebida');
         });
         this.salida = '';
+        this.symbolTable = new SymbolTable();
 
         /**     
          * @type {Expresion | null}
@@ -192,6 +194,9 @@ export class InterpreterVisitor extends BaseVisitor {
     visitDeclaracionVariable(node) {
         const nombreVariable = node.id;
         const tipoVariable = node.tipo;
+        const linea = node.location.start.line;
+        const columna = node.location.start.column;
+        const env = 'global';
         if (node.exp === undefined) {
             this.entornoActual.set(nombreVariable, null, tipoVariable);
             return;
@@ -203,6 +208,7 @@ export class InterpreterVisitor extends BaseVisitor {
         }
         const valorVariable = node.exp.accept(this);
         this.entornoActual.set(nombreVariable, valorVariable.valor, tipoVariable);
+        this.symbolTable.addSymbol(nombreVariable, 'variable', tipoVariable, env, linea, columna);
     }
 
     /**
@@ -365,7 +371,15 @@ export class InterpreterVisitor extends BaseVisitor {
       */
     visitFuncDcl(node){
         const funcion = new FuncionForanea(node, this.entornoActual);
+        const nombre = node.id;
+        const tipoSimbolo = 'funcion';
+        const tipoFunc = node.td;
+        const ambito = 'global';
+        const linea = node.location.start.line;
+        const columna = node.location.start.column;
+
         this.entornoActual.set(node.id, funcion, node.td);
+        this.symbolTable.addSymbol(nombre, tipoSimbolo, tipoFunc, ambito, linea, columna);
     }
     
     /**

@@ -82,3 +82,7 @@ body {
     font-family: monospace;
     resize: none;
 }
+
+.tabla-reporte {
+    display: none;
+}
