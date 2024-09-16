@@ -112,6 +112,10 @@ System.out.println("1. parseInt");
 int numero10 = parseInt("10");
 int numeroDecimal = parseInt("10.5123");
 
+// ERRORES. Comentar la linea.
+int numeroError = parseInt("Hola");
+int numeroError2 = parseInt(10.5);
+
 System.out.println(numero10); // 10
 System.out.println(numeroDecimal); // 10
 System.out.println("");
@@ -121,6 +125,8 @@ System.out.println("2. parsefloat");
 System.out.println(parsefloat("10")); // 10.0
 System.out.println(parsefloat("10.5")); // 10.5
 
+// ERRORES. Comentar la linea.
+float numeroError3 = parsefloat("Hola");
 System.out.println("");
 
 System.out.println("3. toString");
@@ -133,12 +139,16 @@ System.out.println("");
 System.out.println("4. toLowerCase");
 System.out.println(toLowerCase("HOLA MUNDO")); // "hola mundo"
 
+// ERRORES. Comentar la linea.
+string minusculas = toLowerCase(10);
 System.out.println("");
 
 System.out.println("5. toUpperCase");
 
 System.out.println(toUpperCase("hola mundo")); // "HOLA MUNDO"
 
+// ERRORES. Comentar la linea.
+string mayusculas = toUpperCase(10);
 System.out.println("");
 
 

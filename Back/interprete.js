@@ -228,6 +228,10 @@ export class InterpreterVisitor extends BaseVisitor {
         const linea = node.location.start.line;
         const columna = node.location.start.column;
         const env = 'global';
+        if (this.entornoActual.get(nombreVariable)) {
+            this.errs.addError(`La variable ${nombreVariable} ya fue declarada en el mismo entorno`, linea, columna, 'Semántico');
+            return;
+        }
         if (node.exp === undefined) {
             this.entornoActual.set(nombreVariable, null, tipoVariable);
             this.symbolTable.addSymbol(nombreVariable, 'variable', tipoVariable, env, linea, columna);
@@ -240,6 +244,16 @@ export class InterpreterVisitor extends BaseVisitor {
             return;
         }
         if (tipoVariable !== node.exp.tipo){
+            if(tipoVariable === 'int' && node.exp.tipo === 'parseInt('){
+                this.entornoActual.set(nombreVariable, node.exp.accept(this).valor, tipoVariable);
+                this.symbolTable.addSymbol(nombreVariable, 'variable', tipoVariable, env, linea, columna);
+                return;
+            } else if(tipoVariable === 'float' && node.exp.tipo === 'parsefloat('){
+                this.entornoActual.set(nombreVariable, node.exp.accept(this).valor, tipoVariable);
+                this.symbolTable.addSymbol(nombreVariable, 'variable', tipoVariable, env, linea, columna);
+                return;
+            }
+            this.entornoActual.set(nombreVariable, null, tipoVariable);
             this.errs.addError(`Tipo de dato incorrecto: ${tipoVariable} != ${node.exp.tipo}`, linea, columna, 'Semántico');
             this.symbolTable.addSymbol(nombreVariable, 'variable', tipoVariable, env, linea, columna);
             return;
@@ -504,9 +518,27 @@ export class InterpreterVisitor extends BaseVisitor {
         const val = node.exp.accept(this);
         switch (tipoEmb) {
             case 'parseInt(':
-                return { valor: parseInt(val.valor, 10), tipo: 'int' };
+                if (val.tipo !== 'string') {
+                    this.errs.addError(`Tipo de dato incorrecto: se esperaba string pero se obtuvo ${val.tipo}`, node.location.start.line, node.location.start.column, 'Semántico');
+                    return { valor: null, tipo: 'null' };
+                }
+                const parsedInt = parseInt(val.valor, 10);
+                if (isNaN(parsedInt)) {
+                    this.errs.addError(`La expresión "${val.valor}" no es convertible a número`, node.location.start.line, node.location.start.column, 'Semántico');
+                    return { valor: null, tipo: 'null' };
+                }
+                return { valor: parsedInt, tipo: 'int' };
             case 'parsefloat(':
-                return { valor: parseFloat(val.valor).toFixed(4), tipo: 'float' };
+                if (val.tipo !== 'string') {
+                    this.errs.addError(`Tipo de dato incorrecto: se esperaba string pero se obtuvo ${val.tipo}`, node.location.start.line, node.location.start.column, 'Semántico');
+                    return { valor: null, tipo: 'null' };
+                }
+                const parsedfloat = parseInt(val.valor, 10);
+                if (isNaN(parsedfloat)) {
+                    this.errs.addError(`La expresión "${val.valor}" no es convertible a decimal`, node.location.start.line, node.location.start.column, 'Semántico');
+                    return { valor: null, tipo: 'null' };
+                }
+                return { valor: parsedfloat.toFixed(4), tipo: 'float' };
             case 'toString(':
                 return { valor: val.valor.toString(), tipo: 'string' };
             case 'toLowerCase(':

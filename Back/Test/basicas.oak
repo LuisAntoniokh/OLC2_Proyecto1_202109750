@@ -189,11 +189,26 @@ System.out.println("");
 System.out.println("********** System.out.println **********");
 
 System.out.println(10.123);
-System.out.println("hola\n mundo"); /*hola
+System.out.println("hola\n", "mundo"); /*hola
 mundo*/
-System.out.println("hola 10"); // hola 10
+System.out.println("hola", 10); // hola 10
 System.out.println(true); // true
 System.out.println(false); // false
+System.out.println("");
+
+// ------------------------------------------------------------
+System.out.println("********** Manejo del valor nulo **********");
+
+System.out.println("1 Declaracion con tipo y valor incorrecto");
+
+int incorrectoNulo1 = "Hola mundo";
+System.out.println(incorrectoNulo1); // null
+System.out.println("");
+
+System.out.println("2. Asignacion con tipo incorrecto");
+var incorrectoNulo2 = "Hola mundo";
+incorrectoNulo2 = 10; 
+System.out.println(incorrectoNulo2); // null
 System.out.println("");
 
 
