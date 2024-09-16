@@ -6,6 +6,7 @@ import { Invocable } from "./funciones/invocables.js";
 import { embebidas } from "./funciones/embebidas.js";
 import { FuncionForanea } from "./funciones/foranea.js";
 import { SymbolTable } from "./Entorno/simbolo.js";
+import { ErrorSemantico } from "./Entorno/errores.js";
 
 export class InterpreterVisitor extends BaseVisitor {
 
@@ -17,6 +18,7 @@ export class InterpreterVisitor extends BaseVisitor {
         });
         this.salida = '';
         this.symbolTable = new SymbolTable();
+        this.errs = new ErrorSemantico();
 
         /**     
          * @type {Expresion | null}
@@ -30,17 +32,23 @@ export class InterpreterVisitor extends BaseVisitor {
     visitOperacionBinaria(node) {
         const izq = node.izq.accept(this);
         const der = node.der.accept(this);
-
+        
+        if (izq.valor === null || der.valor === null) {
+            this.errs.addError('Operación con valor null', node.location.start.line, node.location.start.column, 'Semántico');
+            return { valor: null, tipo: 'null' };
+        }
+    
         if(izq.tipo === 'string' || der.tipo === 'string'){
             switch (node.op) {
                 case '+':
                     return { valor: izq.valor + der.valor, tipo: 'string' };
                 case '==':
-                    return { valor: izq.valor == der.valor, tipo: 'bool' };
+                    return { valor: izq.valor == der.valor, tipo: 'boolean' };
                 case '!=':
-                    return { valor: izq.valor != der.valor, tipo: 'bool' };
+                    return { valor: izq.valor != der.valor, tipo: 'boolean' };
                 default:
-                    throw new Error(`Operador no soportado: ${node.op}`);
+                    this.errs.addError('Operador no soportado', node.location.start.line, node.location.start.column, 'Semántico');
+                    return { valor: null, tipo: 'null' };
             }
         }
 
@@ -53,89 +61,103 @@ export class InterpreterVisitor extends BaseVisitor {
                 case '*':
                     return { valor: parseInt(izq.valor * der.valor, 10), tipo: 'int' };
                 case '/':
-                    return { valor: Math.floor(izq.valor / der.valor), tipo: 'int' };
+                    if (der.valor === 0) {
+                        this.errs.addError('División por cero', node.location.start.line, node.location.start.column, 'Semántico');
+                        return { valor: null, tipo: 'null' };
+                    } return { valor: Math.floor(izq.valor / der.valor), tipo: 'int' };
                 case '%':
-                    return { valor: izq.valor % der.valor, tipo: 'int' };
+                    if (der.valor === 0) {
+                        this.errs.addError('Módulo por cero', node.location.start.line, node.location.start.column, 'Semántico');
+                        return { valor: null, tipo: 'null' };
+                    } return { valor: izq.valor % der.valor, tipo: 'int' };
                 case '==':
-                    return { valor: izq.valor == der.valor, tipo: 'bool' };
+                    return { valor: izq.valor == der.valor, tipo: 'boolean' };
                 case '!=':
-                    return { valor: izq.valor != der.valor, tipo: 'bool' };
+                    return { valor: izq.valor != der.valor, tipo: 'boolean' };
                 case '>':
-                    return { valor: izq.valor > der.valor, tipo: 'bool' };
+                    return { valor: izq.valor > der.valor, tipo: 'boolean' };
                 case '<':
-                    return { valor: izq.valor < der.valor, tipo: 'bool' };
+                    return { valor: izq.valor < der.valor, tipo: 'boolean' };
                 case '>=':
-                    return { valor: izq.valor >= der.valor, tipo: 'bool' };
+                    return { valor: izq.valor >= der.valor, tipo: 'boolean' };
                 case '<=':
-                    return { valor: izq.valor <= der.valor, tipo: 'bool' };
+                    return { valor: izq.valor <= der.valor, tipo: 'boolean' };
                 default:
-                    throw new Error(`Operador no soportado: ${node.op}`);
+                    this.errs.addError('Operador no soportado', node.location.start.line, node.location.start.column, 'Semántico');
+                    return { valor: null, tipo: 'null' };
             }
         } 
         
         if((izq.tipo === 'int' && der.tipo === 'float') || (izq.tipo === 'float' && der.tipo === 'int') || (izq.tipo === 'float' && der.tipo === 'float')){ 
             switch (node.op) {
                 case '+':
-                    return { valor: (izq.valor + der.valor), tipo: 'float' };
+                    return { valor: (izq.valor + der.valor).toFixed(4), tipo: 'float' };
                 case '-':
-                    return { valor: (izq.valor - der.valor), tipo: 'float' };
+                    return { valor: (izq.valor - der.valor).toFixed(4), tipo: 'float' };
                 case '*':
-                    return { valor: (izq.valor * der.valor), tipo: 'float' };
+                    return { valor: (izq.valor * der.valor).toFixed(4), tipo: 'float' };
                 case '/':
-                    return { valor: (izq.valor / der.valor), tipo: 'float' };
+                    if (der.valor === 0) {
+                        this.errs.addError('División por cero', node.location.start.line, node.location.start.column, 'Semántico');
+                        return { valor: null, tipo: 'null' };
+                    } return { valor: izq.valor / der.valor, tipo: 'float' };
                 case '==':
-                    return { valor: izq.valor == der.valor, tipo: 'bool' };
+                    return { valor: izq.valor == der.valor, tipo: 'boolean' };
                 case '!=':
-                    return { valor: izq.valor != der.valor, tipo: 'bool' };
+                    return { valor: izq.valor != der.valor, tipo: 'boolean' };
                 case '>':
-                    return { valor: izq.valor > der.valor, tipo: 'bool' };
+                    return { valor: izq.valor > der.valor, tipo: 'boolean' };
                 case '<':
-                    return { valor: izq.valor < der.valor, tipo: 'bool' };
+                    return { valor: izq.valor < der.valor, tipo: 'boolean' };
                 case '>=':
-                    return { valor: izq.valor >= der.valor, tipo: 'bool' };
+                    return { valor: izq.valor >= der.valor, tipo: 'boolean' };
                 case '<=':
-                    return { valor: izq.valor <= der.valor, tipo: 'bool' };
+                    return { valor: izq.valor <= der.valor, tipo: 'boolean' };
                 default:
-                    throw new Error(`Operador no soportado: ${node.op}`);
+                    this.errs.addError('Operador no soportado', node.location.start.line, node.location.start.column, 'Semántico');
+                    return { valor: null, tipo: 'null' };
             }
         } 
         
         if(izq.tipo === 'char' && der.tipo === 'char'){
             switch (node.op) {
                 case '==':
-                    return { valor: izq.valor == der.valor, tipo: 'bool' };
+                    return { valor: izq.valor == der.valor, tipo: 'boolean' };
                 case '!=':
-                    return { valor: izq.valor != der.valor, tipo: 'bool' };
+                    return { valor: izq.valor != der.valor, tipo: 'boolean' };
                 case '>':
-                    return { valor: izq.valor.charCodeAt(0) > der.valor.charCodeAt(0), tipo: 'bool' };
+                    return { valor: izq.valor.charCodeAt(0) > der.valor.charCodeAt(0), tipo: 'boolean' };
                 case '<':
-                    return { valor: izq.valor.charCodeAt(0) < der.valor.charCodeAt(0), tipo: 'bool' };
+                    return { valor: izq.valor.charCodeAt(0) < der.valor.charCodeAt(0), tipo: 'boolean' };
                 case '>=':
-                    return { valor: izq.valor.charCodeAt(0) >= der.valor.charCodeAt(0), tipo: 'bool' };
+                    return { valor: izq.valor.charCodeAt(0) >= der.valor.charCodeAt(0), tipo: 'boolean' };
                 case '<=':
-                    return { valor: izq.valor.charCodeAt(0) <= der.valor.charCodeAt(0), tipo: 'bool' };
+                    return { valor: izq.valor.charCodeAt(0) <= der.valor.charCodeAt(0), tipo: 'boolean' };
                 default:
-                    throw new Error(`Operador no soportado: ${node.op}`);
+                    this.errs.addError('Operador no soportado', node.location.start.line, node.location.start.column, 'Semántico');
+                    return { valor: null, tipo: 'null' };
             }
         }
         
-        if(izq.tipo === 'bool' && der.tipo === 'bool'){
+        if(izq.tipo === 'boolean' && der.tipo === 'boolean'){
             switch (node.op) {
                 case '==':
-                    return { valor: izq.valor == der.valor, tipo: 'bool' };
+                    return { valor: izq.valor == der.valor, tipo: 'boolean' };
                 case '!=':
-                    return { valor: izq.valor != der.valor, tipo: 'bool' };
+                    return { valor: izq.valor != der.valor, tipo: 'boolean' };
                 case '&&':
-                    return { valor: izq.valor && der.valor, tipo: 'bool' };
+                    return { valor: izq.valor && der.valor, tipo: 'boolean' };
                 case '||':
-                    return { valor: izq.valor || der.valor, tipo: 'bool' };
+                    return { valor: izq.valor || der.valor, tipo: 'boolean' };
                 default:
-                    throw new Error(`Operador no soportado: ${node.op}`);
+                    this.errs.addError('Operador no soportado', node.location.start.line, node.location.start.column, 'Semántico');
+                    return { valor: null, tipo: 'null' };
             }
         }
 
         else {
-            throw new Error('Tipos no soportados');
+            this.errs.addError('Operacion no soportada', node.location.start.line, node.location.start.column, 'Semántico');
+            return { valor: null, tipo: 'null' };
         }
     }
 
@@ -145,31 +167,40 @@ export class InterpreterVisitor extends BaseVisitor {
     visitOperacionUnaria(node) {
         const exp = node.exp.accept(this);
 
+        if (exp.valor === null) {
+            this.errs.addError('Operación con valor null', node.location.start.line, node.location.start.column, 'Semántico');
+            return { valor: null, tipo: 'null' };
+        }
+
         if(exp.tipo === 'int'){
             switch (node.op) {
                 case '-':
                     return { valor: -exp.valor, tipo: 'int' };
                 default:
-                    throw new Error(`Operador no soportado: ${node.op}`);
+                    this.errs.addError('Operador no soportado', node.location.start.line, node.location.start.column, 'Semántico');
+                    return { valor: null, tipo: 'null' };
             }
         } else if(exp.tipo === 'float'){
             switch (node.op) {
                 case '-':
                     return { valor: (-exp.valor).toFixed(4), tipo: 'float' };
                 default:
-                    throw new Error(`Operador no soportado: ${node.op}`);
+                    this.errs.addError('Operador no soportado', node.location.start.line, node.location.start.column, 'Semántico');
+                    return { valor: null, tipo: 'null' };
             }
         } 
         
-        if (exp.tipo === 'bool'){
+        if (exp.tipo === 'boolean'){
             switch (node.op) {
                 case '!':
-                    return { valor: !exp.valor, tipo: 'bool' };
+                    return { valor: !exp.valor, tipo: 'boolean' };
                 default:
-                    throw new Error(`Operador no soportado: ${node.op}`);
+                    this.errs.addError('Operador no soportado', node.location.start.line, node.location.start.column, 'Semántico');
+                    return { valor: null, tipo: 'null' };
             }
         } else {
-            throw new Error('Tipos no soportados');
+            this.errs.addError('Tipos no soportados', node.location.start.line, node.location.start.column, 'Semántico');
+            return { valor: null, tipo: 'null' };
         }
     }
 
@@ -199,11 +230,18 @@ export class InterpreterVisitor extends BaseVisitor {
         const env = 'global';
         if (node.exp === undefined) {
             this.entornoActual.set(nombreVariable, null, tipoVariable);
+            this.symbolTable.addSymbol(nombreVariable, 'variable', tipoVariable, env, linea, columna);
             return;
         } 
         if (tipoVariable === "var"){
             const valorVariable = node.exp.accept(this);
             this.entornoActual.set(nombreVariable, valorVariable.valor, valorVariable.tipo);
+            this.symbolTable.addSymbol(nombreVariable, 'variable', valorVariable.tipo, env, linea, columna);
+            return;
+        }
+        if (tipoVariable !== node.exp.tipo){
+            this.errs.addError(`Tipo de dato incorrecto: ${tipoVariable} != ${node.exp.tipo}`, linea, columna, 'Semántico');
+            this.symbolTable.addSymbol(nombreVariable, 'variable', tipoVariable, env, linea, columna);
             return;
         }
         const valorVariable = node.exp.accept(this);
@@ -218,7 +256,8 @@ export class InterpreterVisitor extends BaseVisitor {
         const nombreVariable = node.id;
         const value = this.entornoActual.get(nombreVariable);
         if (value === undefined) {
-            throw new Error(`Variable no definida: ${nombreVariable}`);
+            this.errs.addError(`Variable no declarada o fuera del ámbito: ${nombreVariable}`, node.location.start.line, node.location.start.column, 'Semántico');
+            return { valor: null, tipo: 'null' };
         }
         return value;
     }
@@ -244,9 +283,19 @@ export class InterpreterVisitor extends BaseVisitor {
       * @type {BaseVisitor['visitAsignacion']}
       */
     visitAsignacion(node) {
+        const id = node.id;
         const value = node.asgn.accept(this);
-        this.entornoActual.assign(node.id, value);
-        return value;
+        const varia = this.entornoActual.get(id);
+        if(!varia){
+            this.errs.addError(`Variable no declarada o fuera del ámbito: ${id}`, node.location.start.line, node.location.start.column, 'Semántico');
+            return;
+        }
+        if(varia.tipo !== value.tipo){
+            this.errs.addError(`Tipo de dato incompatible: ${varia.tipo} != ${value.tipo}`, node.location.start.line, node.location.start.column, 'Semántico');
+            this.entornoActual.assign(node.id, {valor: null, tipo: 'null'});
+            return;
+        }
+        this.entornoActual.assign(id, value);
     }
 
     /**

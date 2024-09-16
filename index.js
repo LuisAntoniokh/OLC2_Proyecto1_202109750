@@ -108,37 +108,44 @@ function analizador() {
         arbol.forEach(arbol => arbol.accept(interprete))
         cons.innerHTML = interprete.salida;
         llenarTablaSimbolos(interprete.symbolTable.getSymbols());
+        llenarTablaErrores(interprete.errs.getErrores());
     } catch (error) {
         console.log(error)
         // console.log(error.message + " en la linea " + error.location.start.line + " y columna " + error.location.start.column)
-        agregarError(error.message, error.location.start.line, error.location.start.column, 'Sintáctico');
+        //agregarError(error.message, error.location.start.line, error.location.start.column, 'Sintáctico');
+        if (error.location) {
+            agregarError(error.message, error.location.start.line, error.location.start.column, 'Sintáctico');
+        } else {
+            agregarError(error.message, 0, 0, 'Desconocido');
+        }
     }
 }
 
-function agregarError(descripcion, linea, columna, tipo) {
-    errCount++;
-    const row = `<tr>
-        <td>${errCount}</td>
-        <td>${descripcion}</td>
-        <td>${linea}</td>
-        <td>${columna}</td>
-        <td>${tipo}</td>
-    </tr>`;
-    if (!tablaErrores.querySelector('table')) {
-        tablaErrores.innerHTML = `<table>
+function llenarTablaErrores(erra) {
+    if (erra.length > 0) {
+        let rows = erra.map((error, index) => `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${error.descripcion}</td>
+                <td>${error.linea}</td>
+                <td>${error.columna}</td>
+                <td>${error.tipo}</td>
+            </tr>
+        `).join('');
+        tablaErrores.innerHTML = `
+        <table>
             <thead>
                 <tr>
                     <th>#</th>
                     <th>Descripción</th>
-                    <th>Línea</th>
+                    <th>Linea</th>
                     <th>Columna</th>
                     <th>Tipo</th>
                 </tr>
             </thead>
-            <tbody>${row}</tbody>
-        </table>`;
-    } else {
-        tablaErrores.querySelector('tbody').innerHTML += row;
+            <tbody>${rows}</tbody>
+        </table>
+    `;
     }
 }
 

@@ -27,7 +27,7 @@ export class Entorno {
             return this.padre.get(id);
         }
         
-        throw new Error(`La variable ${id} no está definida`);
+        return undefined;
     }
 
     /**
