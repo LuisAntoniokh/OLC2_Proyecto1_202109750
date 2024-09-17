@@ -542,6 +542,183 @@ const configuracionNodos = [
             }
         ]
     },
+    // return crearNodo('declaracionMatriz2D', { tipo, id, filas }) || return crearNodo('declaracionMatriz2D', { tipo, id, tam1, tam2 })
+    {
+        name: 'DeclaracionMatriz2D',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'tipo',
+                type: 'string',
+                description: 'Tipo de dato de la matriz'
+            },
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador de la matriz'
+            },
+            {
+                name: 'filas',
+                type: 'Expresion[][]|undefined',
+                description: 'Numero de filas de la matriz'
+            },
+            {
+                name: 'tam1',
+                type: 'Expresion|undefined',
+                description: 'Tamaño de la primera dimension'
+            },
+            {
+                name: 'tam2',
+                type: 'Expresion|undefined',
+                description: 'Tamaño de la segunda dimension'
+            }
+        ]
+    },
+    //
+    {
+        name: 'DeclaracionMatriz3D',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'tipo',
+                type: 'string',
+                description: 'Tipo de dato de la matriz'
+            },
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador de la matriz'
+            },
+            {
+                name: 'capas',
+                type: 'Expresion[][][]|undefined',
+                description: 'Lista de capas de la matriz'
+            },
+            {
+                name: 'tam1',
+                type: 'Expresion|undefined',
+                description: 'Tamaño de la primera dimensión de la matriz'
+            },
+            {
+                name: 'tam2',
+                type: 'Expresion|undefined',
+                description: 'Tamaño de la segunda dimensión de la matriz'
+            },
+            {
+                name: 'tam3',
+                type: 'Expresion|undefined',
+                description: 'Tamaño de la tercera dimensión de la matriz'
+            }
+        ]
+    },
+    // return crearNodo('accesoMatriz2D', { id, indice1, indice2 })
+    {
+        name: 'AccesoMatriz2D',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador de la matriz'
+            },
+            {
+                name: 'indice1',
+                type: 'Expresion',
+                description: 'Indice de la primera dimension'
+            },
+            {
+                name: 'indice2',
+                type: 'Expresion',
+                description: 'Indice de la segunda dimension'
+            }
+        ]
+    },
+    // return crearNodo('accesoMatriz3D', { id, indice1, indice2, indice3 })
+    {
+        name: 'AccesoMatriz3D',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador de la matriz'
+            },
+            {
+                name: 'indice1',
+                type: 'Expresion',
+                description: 'Indice de la primera dimension'
+            },
+            {
+                name: 'indice2',
+                type: 'Expresion',
+                description: 'Indice de la segunda dimension'
+            },
+            {
+                name: 'indice3',
+                type: 'Expresion',
+                description: 'Indice de la tercera dimension'
+            }
+        ]
+    },
+    // return crearNodo('asignacionMatriz2D', { id, indice1, indice2, valor }) 
+    {
+        name: 'AsignacionMatriz2D',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador de la matriz'
+            },
+            {
+                name: 'indice1',
+                type: 'Expresion',
+                description: 'Indice de la primera dimension'
+            },
+            {
+                name: 'indice2',
+                type: 'Expresion',
+                description: 'Indice de la segunda dimension'
+            },
+            {
+                name: 'valor',
+                type: 'Expresion',
+                description: 'Valor a asignar'
+            }
+        ]
+    },
+    // return crearNodo('asignacionMatriz3D', { id, indice1, indice2, indice3, valor })
+    {
+        name: 'AsignacionMatriz3D',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador de la matriz'
+            },
+            {
+                name: 'indice1',
+                type: 'Expresion',
+                description: 'Indice de la primera dimension'
+            },
+            {
+                name: 'indice2',
+                type: 'Expresion',
+                description: 'Indice de la segunda dimension'
+            },
+            {
+                name: 'indice3',
+                type: 'Expresion',
+                description: 'Indice de la tercera dimension'
+            },
+            {
+                name: 'valor',
+                type: 'Expresion',
+                description: 'Valor a asignar'
+            }
+        ]
+    },
 ]
 
 let code = ''

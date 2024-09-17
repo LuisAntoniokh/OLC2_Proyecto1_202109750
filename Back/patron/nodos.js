@@ -1050,4 +1050,322 @@ export class ForEach extends Expresion {
     }
 }
     
-export default { Expresion, Primal, OperacionBinaria, OperacionUnaria, Agrupacion, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt, Asignacion, Bloque, If, While, For, Break, Continue, Return, Llamada, FuncDcl, Switch, Ternario, Embebidas, DeclaracionArreglo, DeclaracionArregloTam, DeclaracionArregloCopia, AccesoArreglo, AsignacionArreglo, FuncionArreglo, ForEach }
+export class DeclaracionMatriz2D extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.tipo Tipo de dato de la matriz
+ * @param {string} options.id Identificador de la matriz
+ * @param {Expresion[][]|undefined} options.filas Numero de filas de la matriz
+ * @param {Expresion|undefined} options.tam1 Tamaño de la primera dimension
+ * @param {Expresion|undefined} options.tam2 Tamaño de la segunda dimension
+    */
+    constructor({ tipo, id, filas, tam1, tam2 }) {
+        super();
+        
+        /**
+         * Tipo de dato de la matriz
+         * @type {string}
+        */
+        this.tipo = tipo;
+
+
+        /**
+         * Identificador de la matriz
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Numero de filas de la matriz
+         * @type {Expresion[][]|undefined}
+        */
+        this.filas = filas;
+
+
+        /**
+         * Tamaño de la primera dimension
+         * @type {Expresion|undefined}
+        */
+        this.tam1 = tam1;
+
+
+        /**
+         * Tamaño de la segunda dimension
+         * @type {Expresion|undefined}
+        */
+        this.tam2 = tam2;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitDeclaracionMatriz2D(this);
+    }
+}
+    
+export class DeclaracionMatriz3D extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.tipo Tipo de dato de la matriz
+ * @param {string} options.id Identificador de la matriz
+ * @param {Expresion[][][]|undefined} options.capas Lista de capas de la matriz
+ * @param {Expresion|undefined} options.tam1 Tamaño de la primera dimensión de la matriz
+ * @param {Expresion|undefined} options.tam2 Tamaño de la segunda dimensión de la matriz
+ * @param {Expresion|undefined} options.tam3 Tamaño de la tercera dimensión de la matriz
+    */
+    constructor({ tipo, id, capas, tam1, tam2, tam3 }) {
+        super();
+        
+        /**
+         * Tipo de dato de la matriz
+         * @type {string}
+        */
+        this.tipo = tipo;
+
+
+        /**
+         * Identificador de la matriz
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Lista de capas de la matriz
+         * @type {Expresion[][][]|undefined}
+        */
+        this.capas = capas;
+
+
+        /**
+         * Tamaño de la primera dimensión de la matriz
+         * @type {Expresion|undefined}
+        */
+        this.tam1 = tam1;
+
+
+        /**
+         * Tamaño de la segunda dimensión de la matriz
+         * @type {Expresion|undefined}
+        */
+        this.tam2 = tam2;
+
+
+        /**
+         * Tamaño de la tercera dimensión de la matriz
+         * @type {Expresion|undefined}
+        */
+        this.tam3 = tam3;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitDeclaracionMatriz3D(this);
+    }
+}
+    
+export class AccesoMatriz2D extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador de la matriz
+ * @param {Expresion} options.indice1 Indice de la primera dimension
+ * @param {Expresion} options.indice2 Indice de la segunda dimension
+    */
+    constructor({ id, indice1, indice2 }) {
+        super();
+        
+        /**
+         * Identificador de la matriz
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Indice de la primera dimension
+         * @type {Expresion}
+        */
+        this.indice1 = indice1;
+
+
+        /**
+         * Indice de la segunda dimension
+         * @type {Expresion}
+        */
+        this.indice2 = indice2;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitAccesoMatriz2D(this);
+    }
+}
+    
+export class AccesoMatriz3D extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador de la matriz
+ * @param {Expresion} options.indice1 Indice de la primera dimension
+ * @param {Expresion} options.indice2 Indice de la segunda dimension
+ * @param {Expresion} options.indice3 Indice de la tercera dimension
+    */
+    constructor({ id, indice1, indice2, indice3 }) {
+        super();
+        
+        /**
+         * Identificador de la matriz
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Indice de la primera dimension
+         * @type {Expresion}
+        */
+        this.indice1 = indice1;
+
+
+        /**
+         * Indice de la segunda dimension
+         * @type {Expresion}
+        */
+        this.indice2 = indice2;
+
+
+        /**
+         * Indice de la tercera dimension
+         * @type {Expresion}
+        */
+        this.indice3 = indice3;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitAccesoMatriz3D(this);
+    }
+}
+    
+export class AsignacionMatriz2D extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador de la matriz
+ * @param {Expresion} options.indice1 Indice de la primera dimension
+ * @param {Expresion} options.indice2 Indice de la segunda dimension
+ * @param {Expresion} options.valor Valor a asignar
+    */
+    constructor({ id, indice1, indice2, valor }) {
+        super();
+        
+        /**
+         * Identificador de la matriz
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Indice de la primera dimension
+         * @type {Expresion}
+        */
+        this.indice1 = indice1;
+
+
+        /**
+         * Indice de la segunda dimension
+         * @type {Expresion}
+        */
+        this.indice2 = indice2;
+
+
+        /**
+         * Valor a asignar
+         * @type {Expresion}
+        */
+        this.valor = valor;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitAsignacionMatriz2D(this);
+    }
+}
+    
+export class AsignacionMatriz3D extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador de la matriz
+ * @param {Expresion} options.indice1 Indice de la primera dimension
+ * @param {Expresion} options.indice2 Indice de la segunda dimension
+ * @param {Expresion} options.indice3 Indice de la tercera dimension
+ * @param {Expresion} options.valor Valor a asignar
+    */
+    constructor({ id, indice1, indice2, indice3, valor }) {
+        super();
+        
+        /**
+         * Identificador de la matriz
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Indice de la primera dimension
+         * @type {Expresion}
+        */
+        this.indice1 = indice1;
+
+
+        /**
+         * Indice de la segunda dimension
+         * @type {Expresion}
+        */
+        this.indice2 = indice2;
+
+
+        /**
+         * Indice de la tercera dimension
+         * @type {Expresion}
+        */
+        this.indice3 = indice3;
+
+
+        /**
+         * Valor a asignar
+         * @type {Expresion}
+        */
+        this.valor = valor;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitAsignacionMatriz3D(this);
+    }
+}
+    
+export default { Expresion, Primal, OperacionBinaria, OperacionUnaria, Agrupacion, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt, Asignacion, Bloque, If, While, For, Break, Continue, Return, Llamada, FuncDcl, Switch, Ternario, Embebidas, DeclaracionArreglo, DeclaracionArregloTam, DeclaracionArregloCopia, AccesoArreglo, AsignacionArreglo, FuncionArreglo, ForEach, DeclaracionMatriz2D, DeclaracionMatriz3D, AccesoMatriz2D, AccesoMatriz3D, AsignacionMatriz2D, AsignacionMatriz3D }

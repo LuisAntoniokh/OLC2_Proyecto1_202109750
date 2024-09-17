@@ -90,6 +90,24 @@
 
  * @typedef {import('./nodos').ForEach} ForEach
 
+
+ * @typedef {import('./nodos').DeclaracionMatriz2D} DeclaracionMatriz2D
+
+
+ * @typedef {import('./nodos').DeclaracionMatriz3D} DeclaracionMatriz3D
+
+
+ * @typedef {import('./nodos').AccesoMatriz2D} AccesoMatriz2D
+
+
+ * @typedef {import('./nodos').AccesoMatriz3D} AccesoMatriz3D
+
+
+ * @typedef {import('./nodos').AsignacionMatriz2D} AsignacionMatriz2D
+
+
+ * @typedef {import('./nodos').AsignacionMatriz3D} AsignacionMatriz3D
+
  */
 
 
@@ -367,6 +385,60 @@ export class BaseVisitor {
      */
     visitForEach(node) {
         throw new Error('Metodo visitForEach no implementado');
+    }
+    
+
+    /**
+     * @param {DeclaracionMatriz2D} node
+     * @returns {any}
+     */
+    visitDeclaracionMatriz2D(node) {
+        throw new Error('Metodo visitDeclaracionMatriz2D no implementado');
+    }
+    
+
+    /**
+     * @param {DeclaracionMatriz3D} node
+     * @returns {any}
+     */
+    visitDeclaracionMatriz3D(node) {
+        throw new Error('Metodo visitDeclaracionMatriz3D no implementado');
+    }
+    
+
+    /**
+     * @param {AccesoMatriz2D} node
+     * @returns {any}
+     */
+    visitAccesoMatriz2D(node) {
+        throw new Error('Metodo visitAccesoMatriz2D no implementado');
+    }
+    
+
+    /**
+     * @param {AccesoMatriz3D} node
+     * @returns {any}
+     */
+    visitAccesoMatriz3D(node) {
+        throw new Error('Metodo visitAccesoMatriz3D no implementado');
+    }
+    
+
+    /**
+     * @param {AsignacionMatriz2D} node
+     * @returns {any}
+     */
+    visitAsignacionMatriz2D(node) {
+        throw new Error('Metodo visitAsignacionMatriz2D no implementado');
+    }
+    
+
+    /**
+     * @param {AsignacionMatriz3D} node
+     * @returns {any}
+     */
+    visitAsignacionMatriz3D(node) {
+        throw new Error('Metodo visitAsignacionMatriz3D no implementado');
     }
     
 }

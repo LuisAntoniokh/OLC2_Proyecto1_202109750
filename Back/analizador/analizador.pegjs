@@ -29,7 +29,13 @@
       'accesoArreglo' : nodos.AccesoArreglo,
       'asignacionArreglo' : nodos.AsignacionArreglo,
       'funcionArreglo' : nodos.FuncionArreglo,
-      'forEach' : nodos.ForEach
+      'forEach' : nodos.ForEach,
+      'declaracionMatriz2D' : nodos.DeclaracionMatriz2D,
+      'declaracionMatriz3D' : nodos.DeclaracionMatriz3D,
+      'accesoMatriz2D' : nodos.AccesoMatriz2D,
+      'accesoMatriz3D' : nodos.AccesoMatriz3D,
+      'asignacionMatriz2D' : nodos.AsignacionMatriz2D,
+      'asignacionMatriz3D' : nodos.AsignacionMatriz3D
     }
 
     const nodo = new tipos[tipoNodo](propert)
@@ -43,6 +49,8 @@ Start = _ dcl:Sentencias* _ { return dcl }
 Sentencias = vdlc:DeclarVar _ { return vdlc }
             / fdlc:DeclarFunc _ { return fdlc }
             / adlc:DeclarArr _ ";" _ { return adlc }
+            / dlc2D:DeclaracionMatriz2D _ ";" _ { return dlc2D }
+            / dlc3D:DeclaracionMatriz3D _ ";" _ { return dlc3D }
             / ndlc:StmtnDlc _ { return ndlc }
 
 DeclarVar = tipo:TipoDato _ id:Identificador _ "=" _ exp:Expresion _ ";" {return crearNodo('declaracionVariable', { id, exp, tipo })}
@@ -58,6 +66,24 @@ TipoDato = td:"int" { return td }
 DeclarArr = tipo:TipoDato _ "[" _ "]" _ id:Identificador _ "=" _ "{" _ lista:ListaExp _ "}" { return crearNodo('declaracionArreglo', { tipo, id, lista }) }
   / tipo:TipoDato _ "[" _ "]" _ id:Identificador _ "=" _ "new" _ tipo2:TipoDato _ "[" _ tam:Expresion _ "]" { return crearNodo('declaracionArregloTam', { tipo, id, tipo2, tam }) }
   / tipo:TipoDato _ "[" _ "]" _ id:Identificador _ "=" _ id2:Identificador { return crearNodo('declaracionArregloCopia', { tipo, id, id2 }) }
+
+DeclaracionMatriz2D = tipo:TipoDato _ "[" _ "]" _ "[" _ "]" _ id:Identificador _ "=" _ "{" _ filas:ListaFilas _ "}" { return crearNodo('declaracionMatriz2D', { tipo, id, filas }) }
+                    / tipo:TipoDato _ "[" _ "]" _ "[" _ "]" _ id:Identificador _ "=" _ "new" _ tipo2:TipoDato _ "[" _ tam1:Expresion _ "]" _ "[" _ tam2:Expresion _ "]" { return crearNodo('declaracionMatriz2D', { tipo, id, tam1, tam2 }) }
+
+ListaFilas = fila:ListaFila fila2:("," _ fila2:ListaFila)* { 
+  return [fila].concat(fila2.map(f => f[2])); 
+}
+
+ListaFila = "{" _ exp:ListaExp _ "}" { return exp; }
+
+DeclaracionMatriz3D = tipo:TipoDato _ "[" _ "]" _ "[" _ "]" _ "[" _ "]" _ id:Identificador _ "=" _ "{" _ capas:ListaCapas _ "}" { return crearNodo('declaracionMatriz3D', { tipo, id, capas }) }
+                    / tipo:TipoDato _ "[" _ "]" _ "[" _ "]" _ "[" _ "]" _ id:Identificador _ "=" _ "new" _ tipo2:TipoDato _ "[" _ tam1:Expresion _ "]" _ "[" _ tam2:Expresion _ "]" _ "[" _ tam3:Expresion _ "]" { return crearNodo('declaracionMatriz3D', { tipo, id, tam1, tam2, tam3 }) }
+
+ListaCapas = capa:ListaCapa capa2:("," _ capa2:ListaCapas)* { 
+  return [capa, ...capa2.map(c => c[2])]; 
+}
+
+ListaCapa = "{" _ filas:ListaFilas _ "}" { return filas; }
 
 DeclarFunc = td:FuncTipoDato _ id:Identificador _ "(" _ params: Parametros? _ ")" _  block:Bloque { return crearNodo('dclFunc', { td,  id, params: params || [], block }) }
 
@@ -114,6 +140,8 @@ TipoEmb = tem:"parseInt("  { return tem }
       / tem:"toUpperCase(" { return tem }
 
 Expresion = FuncionArreglo
+            / MatAsg:AsignacionMatriz { return MatAsg }
+            / MatAcc:AccesoMatriz { return MatAcc }
             / ArrAsign:AsignacionArreglo  { return ArrAsign }
             / ArrAcces:AccesoArreglo { return ArrAcces }
             / Asignacion
@@ -133,7 +161,13 @@ Asignacion = tipo:"typeof" _ exp:Expresion _ { return crearNodo('embebidas', { t
 
 AccesoArreglo = id:Identificador _ "[" _ indice:Expresion _ "]" { return crearNodo('accesoArreglo', { id, indice }) }
 
+AccesoMatriz = id:Identificador _ "[" _ indice1:Expresion _ "]" _ "[" _ indice2:Expresion _ "]" _ "[" _ indice3:Expresion _ "]" { return crearNodo('accesoMatriz3D', { id, indice1, indice2, indice3 }) }
+            / id:Identificador _ "[" _ indice1:Expresion _ "]" _ "[" _ indice2:Expresion _ "]" { return crearNodo('accesoMatriz2D', { id, indice1, indice2 }) }
+   
 AsignacionArreglo = id:Identificador _ "[" _ indice:Expresion _ "]" _ "=" _ valor:Expresion _ { return crearNodo('asignacionArreglo', { id, indice, valor }) }
+
+AsignacionMatriz = id:Identificador _ "[" _ indice1:Expresion _ "]" _ "[" _ indice2:Expresion _ "]" _ "[" _ indice3:Expresion _ "]" _ "=" _ valor:Expresion { return crearNodo('asignacionMatriz3D', { id, indice1, indice2, indice3, valor }) }
+                / id:Identificador _ "[" _ indice1:Expresion _ "]" _ "[" _ indice2:Expresion _ "]" _ "=" _ valor:Expresion { return crearNodo('asignacionMatriz2D', { id, indice1, indice2, valor }) }
 
 OR = izq:AND expansion:(
   _ op:( "||" ) _ der:AND { return { tipo: op, der } }

@@ -696,6 +696,7 @@ export class InterpreterVisitor extends BaseVisitor {
         const joinedString = arreglo.valor.map(elem => elem.valor).join(', ');
         return { valor: joinedString, tipo: 'string' };
     }
+
     /**
      * @type {BaseVisitor['visitForEach']}
      */
@@ -716,5 +717,136 @@ export class InterpreterVisitor extends BaseVisitor {
         }
 
         this.entornoActual = entornoAnterior;
+    }
+
+    /**
+     * @type {BaseVisitor['visitDeclaracionMatriz2D']}
+     */
+    visitDeclaracionMatriz2D(node) {
+        const nombreMatriz = node.id;
+        const tipoMatriz = node.tipo;
+        const linea = node.location.start.line;
+        const columna = node.location.start.column;
+        const env = 'global';
+    
+        let matriz;
+        if (node.filas) {
+            matriz = node.filas.map(fila => fila.map(exp => exp.accept(this).valor));
+            this.entornoActual.set(nombreMatriz, matriz, tipoMatriz);
+            this.symbolTable.addSymbol(nombreMatriz, 'matriz', tipoMatriz, env, linea, columna);
+        } else {
+            const tam1 = node.tam1.accept(this).valor;
+            const tam2 = node.tam2.accept(this).valor;
+            matriz = Array.from({ length: tam1 }, () => Array(tam2).fill(this.obtenerValorPorDefecto(tipoMatriz)));
+            this.entornoActual.set(nombreMatriz, matriz, tipoMatriz);
+            this.symbolTable.addSymbol(nombreMatriz, 'matriz', tipoMatriz, env, linea, columna);
+        }
+    }
+
+    /**
+     * @type {BaseVisitor['visitDeclaracionMatriz3D']}
+     */
+    visitDeclaracionMatriz3D(node) {
+        const nombreMatriz = node.id;
+        const tipoMatriz = node.tipo;
+        const linea = node.location.start.line;
+        const columna = node.location.start.column;
+        const env = 'global';
+
+        let matriz;
+        if (node.capas) {
+            matriz = node.capas.map(capa => {
+                // Verificar si la capa contiene solo un elemento que es un array
+                if (capa.length === 1 && Array.isArray(capa[0])) {
+                    // Si es un Array(1), recorremos ese array
+                    return capa[0].map(fila => fila.map(exp => exp.accept(this).valor));
+                } else {
+                    // Proceso normal
+                    return capa.map(fila => fila.map(exp => exp.accept(this).valor));
+                }
+            });
+            this.entornoActual.set(nombreMatriz, matriz, tipoMatriz);
+            this.symbolTable.addSymbol(nombreMatriz, 'matriz', tipoMatriz, env, linea, columna);
+        } else {
+            const tam1 = node.tam1.accept(this).valor;
+            const tam2 = node.tam2.accept(this).valor;
+            const tam3 = node.tam3.accept(this).valor;
+            matriz = Array.from({ length: tam1 }, () => Array.from({ length: tam2 }, () => Array(tam3).fill(this.obtenerValorPorDefecto(tipoMatriz))));
+            this.entornoActual.set(nombreMatriz, matriz, tipoMatriz);
+            this.symbolTable.addSymbol(nombreMatriz, 'matriz', tipoMatriz, env, linea, columna);
+        }
+
+    }
+
+    /**
+     * @type {BaseVisitor['visitAccesoMatriz2D']}
+     */
+    visitAccesoMatriz2D(node) {
+        const id = node.id;
+        const indice1 = node.indice1.accept(this).valor;
+        const indice2 = node.indice2.accept(this).valor;
+        const matriz = this.entornoActual.get(id);
+
+        if (indice1 < 0 || indice1 >= matriz.valor.length || indice2 < 0 || indice2 >= matriz.valor[0].length) {
+            throw new Error(`Índice fuera de rango para la matriz ${id}`);
+        }
+
+        return { valor: matriz.valor[indice1][indice2], tipo: matriz.tipo };
+    }
+
+    /**
+     * @type {BaseVisitor['visitAccesoMatriz3D']}
+     */
+    visitAccesoMatriz3D(node) {
+        const id = node.id;
+        const indice1 = node.indice1.accept(this).valor;
+        const indice2 = node.indice2.accept(this).valor;
+        const indice3 = node.indice3.accept(this).valor;
+        const matriz = this.entornoActual.get(id);
+
+        if (indice1 < 0 || indice1 >= matriz.valor.length || indice2 < 0 || indice2 >= matriz.valor[0].length || indice3 < 0 || indice3 >= matriz.valor[0][0].length) {
+            throw new Error(`Índice fuera de rango para la matriz ${id}`);
+        }
+
+        if (matriz.valor[indice1][indice2][indice3] instanceof Object){
+            return { valor: matriz.valor[indice1][indice2][indice3].valor, tipo: matriz.valor[indice1][indice2][indice3].tipo };
+        }
+        
+        return { valor: matriz.valor[indice1][indice2][indice3], tipo: matriz.tipo };
+    }
+
+    /**
+     * @type {BaseVisitor['visitAsignacionMatriz2D']}
+     */
+    visitAsignacionMatriz2D(node) {
+        const id = node.id;
+        const indice1 = node.indice1.accept(this).valor;
+        const indice2 = node.indice2.accept(this).valor;
+        const valor = node.valor.accept(this).valor;
+        const matriz = this.entornoActual.get(id);
+
+        if (indice1 < 0 || indice1 >= matriz.valor.length || indice2 < 0 || indice2 >= matriz.valor[0].length) {
+            throw new Error(`Índice fuera de rango para la matriz ${id}`);
+        }
+
+        matriz.valor[indice1][indice2] = valor;
+    }
+
+    /**
+     * @type {BaseVisitor['visitAsignacionMatriz3D']}
+     */
+    visitAsignacionMatriz3D(node) {
+        const id = node.id;
+        const indice1 = node.indice1.accept(this).valor;
+        const indice2 = node.indice2.accept(this).valor;
+        const indice3 = node.indice3.accept(this).valor;
+        const valor = node.valor.accept(this).valor;
+        const matriz = this.entornoActual.get(id);
+
+        if (indice1 < 0 || indice1 >= matriz.valor.length || indice2 < 0 || indice2 >= matriz.valor[0].length || indice3 < 0 || indice3 >= matriz.valor[0][0].length) {
+            throw new Error(`Índice fuera de rango para la matriz ${id}`);
+        }
+
+        matriz.valor[indice1][indice2][indice3] = valor;
     }
 }
