@@ -515,6 +515,33 @@ const configuracionNodos = [
             }
         ]
     },
+    // return crearNodo('forEach', {tipo, id, arr, loop})
+    {
+        name: 'ForEach',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'tipo',
+                type: 'string',
+                description: 'Tipo de dato del arreglo'
+            },
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador del arreglo'
+            },
+            {
+                name: 'arr',
+                type: 'Expresion',
+                description: 'Arreglo a recorrer'
+            },
+            {
+                name: 'loop',
+                type: 'Expresion',
+                description: 'Bloque de sentencias del forEach'
+            }
+        ]
+    },
 ]
 
 let code = ''

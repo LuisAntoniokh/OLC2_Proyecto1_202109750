@@ -1001,4 +1001,53 @@ export class FuncionArreglo extends Expresion {
     }
 }
     
-export default { Expresion, Primal, OperacionBinaria, OperacionUnaria, Agrupacion, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt, Asignacion, Bloque, If, While, For, Break, Continue, Return, Llamada, FuncDcl, Switch, Ternario, Embebidas, DeclaracionArreglo, DeclaracionArregloTam, DeclaracionArregloCopia, AccesoArreglo, AsignacionArreglo, FuncionArreglo }
+export class ForEach extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.tipo Tipo de dato del arreglo
+ * @param {string} options.id Identificador del arreglo
+ * @param {Expresion} options.arr Arreglo a recorrer
+ * @param {Expresion} options.loop Bloque de sentencias del forEach
+    */
+    constructor({ tipo, id, arr, loop }) {
+        super();
+        
+        /**
+         * Tipo de dato del arreglo
+         * @type {string}
+        */
+        this.tipo = tipo;
+
+
+        /**
+         * Identificador del arreglo
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Arreglo a recorrer
+         * @type {Expresion}
+        */
+        this.arr = arr;
+
+
+        /**
+         * Bloque de sentencias del forEach
+         * @type {Expresion}
+        */
+        this.loop = loop;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitForEach(this);
+    }
+}
+    
+export default { Expresion, Primal, OperacionBinaria, OperacionUnaria, Agrupacion, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt, Asignacion, Bloque, If, While, For, Break, Continue, Return, Llamada, FuncDcl, Switch, Ternario, Embebidas, DeclaracionArreglo, DeclaracionArregloTam, DeclaracionArregloCopia, AccesoArreglo, AsignacionArreglo, FuncionArreglo, ForEach }

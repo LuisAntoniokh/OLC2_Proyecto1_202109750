@@ -696,4 +696,25 @@ export class InterpreterVisitor extends BaseVisitor {
         const joinedString = arreglo.valor.map(elem => elem.valor).join(', ');
         return { valor: joinedString, tipo: 'string' };
     }
+    /**
+     * @type {BaseVisitor['visitForEach']}
+     */
+    visitForEach(node){
+        const tipo = node.tipo;
+        const id = node.id;
+        const arr = this.entornoActual.get(node.arr);
+        if (!arr || !Array.isArray(arr.valor)) {
+            throw new Error(`Variable ${node.arr} is not an array`);
+        }
+
+        const entornoAnterior = this.entornoActual;
+        this.entornoActual = new Entorno(entornoAnterior);
+
+        for (const elemento of arr.valor) {
+            this.entornoActual.set(id, elemento.valor, tipo);
+            node.loop.accept(this);
+        }
+
+        this.entornoActual = entornoAnterior;
+    }
 }

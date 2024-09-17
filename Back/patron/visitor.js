@@ -87,6 +87,9 @@
 
  * @typedef {import('./nodos').FuncionArreglo} FuncionArreglo
 
+
+ * @typedef {import('./nodos').ForEach} ForEach
+
  */
 
 
@@ -355,6 +358,15 @@ export class BaseVisitor {
      */
     visitFuncionArreglo(node) {
         throw new Error('Metodo visitFuncionArreglo no implementado');
+    }
+    
+
+    /**
+     * @param {ForEach} node
+     * @returns {any}
+     */
+    visitForEach(node) {
+        throw new Error('Metodo visitForEach no implementado');
     }
     
 }

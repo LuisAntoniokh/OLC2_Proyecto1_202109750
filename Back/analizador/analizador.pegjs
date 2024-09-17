@@ -28,7 +28,8 @@
       'declaracionArregloCopia' : nodos.DeclaracionArregloCopia,
       'accesoArreglo' : nodos.AccesoArreglo,
       'asignacionArreglo' : nodos.AsignacionArreglo,
-      'funcionArreglo' : nodos.FuncionArreglo
+      'funcionArreglo' : nodos.FuncionArreglo,
+      'forEach' : nodos.ForEach
     }
 
     const nodo = new tipos[tipoNodo](propert)
@@ -97,6 +98,7 @@ Default = "default" _ ":" _ stmts:Sentencias* { return { stmts } }
 
 StmtCiclos = "while" _ "(" _ cond:Expresion _ ")" _ loop:StmtnDlc { return crearNodo('while', {cond, loop})}
     / "for" _ "(" _ init:ForInit _  cond:Expresion _ ";" _ inc:Expresion _ ")" _ loop:StmtnDlc { return crearNodo('for', {init, cond, inc, loop})}
+    / "for" _ "(" _ tipo:TipoDato _ id:Identificador _ ":" _ arr:Identificador _ ")" _ loop:StmtnDlc { return crearNodo('forEach', {tipo, id, arr, loop}) }
 
 ForInit = dcl:DeclarVar { return dcl }
         / exp:Expresion _ ";" { return exp }
