@@ -755,4 +755,250 @@ export class Embebidas extends Expresion {
     }
 }
     
-export default { Expresion, Primal, OperacionBinaria, OperacionUnaria, Agrupacion, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt, Asignacion, Bloque, If, While, For, Break, Continue, Return, Llamada, FuncDcl, Switch, Ternario, Embebidas }
+export class DeclaracionArreglo extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.tipo Tipo de dato del arreglo
+ * @param {string} options.id Identificador del arreglo
+ * @param {Expresion[]} options.lista Lista de elementos del arreglo
+    */
+    constructor({ tipo, id, lista }) {
+        super();
+        
+        /**
+         * Tipo de dato del arreglo
+         * @type {string}
+        */
+        this.tipo = tipo;
+
+
+        /**
+         * Identificador del arreglo
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Lista de elementos del arreglo
+         * @type {Expresion[]}
+        */
+        this.lista = lista;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitDeclaracionArreglo(this);
+    }
+}
+    
+export class DeclaracionArregloTam extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.tipo Tipo de dato del arreglo
+ * @param {string} options.id Identificador del arreglo
+ * @param {string} options.tipo2 Tipo de dato del tamaño
+ * @param {Expresion} options.tam Tamaño del arreglo
+    */
+    constructor({ tipo, id, tipo2, tam }) {
+        super();
+        
+        /**
+         * Tipo de dato del arreglo
+         * @type {string}
+        */
+        this.tipo = tipo;
+
+
+        /**
+         * Identificador del arreglo
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Tipo de dato del tamaño
+         * @type {string}
+        */
+        this.tipo2 = tipo2;
+
+
+        /**
+         * Tamaño del arreglo
+         * @type {Expresion}
+        */
+        this.tam = tam;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitDeclaracionArregloTam(this);
+    }
+}
+    
+export class DeclaracionArregloCopia extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.tipo Tipo de dato del arreglo
+ * @param {string} options.id Identificador del arreglo
+ * @param {string} options.id2 Identificador del arreglo a copiar
+    */
+    constructor({ tipo, id, id2 }) {
+        super();
+        
+        /**
+         * Tipo de dato del arreglo
+         * @type {string}
+        */
+        this.tipo = tipo;
+
+
+        /**
+         * Identificador del arreglo
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Identificador del arreglo a copiar
+         * @type {string}
+        */
+        this.id2 = id2;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitDeclaracionArregloCopia(this);
+    }
+}
+    
+export class AccesoArreglo extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador del arreglo
+ * @param {Expresion} options.indice Indice del arreglo
+    */
+    constructor({ id, indice }) {
+        super();
+        
+        /**
+         * Identificador del arreglo
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Indice del arreglo
+         * @type {Expresion}
+        */
+        this.indice = indice;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitAccesoArreglo(this);
+    }
+}
+    
+export class AsignacionArreglo extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador del arreglo
+ * @param {Expresion} options.indice Indice del arreglo
+ * @param {Expresion} options.valor Valor a asignar
+    */
+    constructor({ id, indice, valor }) {
+        super();
+        
+        /**
+         * Identificador del arreglo
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Indice del arreglo
+         * @type {Expresion}
+        */
+        this.indice = indice;
+
+
+        /**
+         * Valor a asignar
+         * @type {Expresion}
+        */
+        this.valor = valor;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitAsignacionArreglo(this);
+    }
+}
+    
+export class FuncionArreglo extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador del arreglo
+ * @param {string} options.funcion Funcion del arreglo
+ * @param {Expresion|undefined} options.argumento Argumento de la funcion
+    */
+    constructor({ id, funcion, argumento }) {
+        super();
+        
+        /**
+         * Identificador del arreglo
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Funcion del arreglo
+         * @type {string}
+        */
+        this.funcion = funcion;
+
+
+        /**
+         * Argumento de la funcion
+         * @type {Expresion|undefined}
+        */
+        this.argumento = argumento;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitFuncionArreglo(this);
+    }
+}
+    
+export default { Expresion, Primal, OperacionBinaria, OperacionUnaria, Agrupacion, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt, Asignacion, Bloque, If, While, For, Break, Continue, Return, Llamada, FuncDcl, Switch, Ternario, Embebidas, DeclaracionArreglo, DeclaracionArregloTam, DeclaracionArregloCopia, AccesoArreglo, AsignacionArreglo, FuncionArreglo }

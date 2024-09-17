@@ -1,6 +1,8 @@
 import { parse } from './Back/analizador/analizador.js';
 import { InterpreterVisitor } from './Back/interprete.js';
+import { ErrorSemantico } from './Back/Entorno/errores.js';
 
+let errs = new ErrorSemantico();
 let tabCount = 0;
 let openedTabs = {};
 let errCount = 0;
@@ -110,14 +112,8 @@ function analizador() {
         llenarTablaSimbolos(interprete.symbolTable.getSymbols());
         llenarTablaErrores(interprete.errs.getErrores());
     } catch (error) {
-        console.log(error)
-        // console.log(error.message + " en la linea " + error.location.start.line + " y columna " + error.location.start.column)
-        //agregarError(error.message, error.location.start.line, error.location.start.column, 'Sintáctico');
-        if (error.location) {
-            agregarError(error.message, error.location.start.line, error.location.start.column, 'Sintáctico');
-        } else {
-            agregarError(error.message, 0, 0, 'Desconocido');
-        }
+        console.error(error);
+        errs.addError(error.message, error.location.start.line, error.location.start.column, 'Sintáctico');
     }
 }
 

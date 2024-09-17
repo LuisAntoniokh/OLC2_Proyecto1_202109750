@@ -228,7 +228,7 @@ export class InterpreterVisitor extends BaseVisitor {
         const linea = node.location.start.line;
         const columna = node.location.start.column;
         const env = 'global';
-        if (this.entornoActual.get(nombreVariable)) {
+        if (this.entornoActual.getLocal(nombreVariable)) {
             this.errs.addError(`La variable ${nombreVariable} ya fue declarada en el mismo entorno`, linea, columna, 'Semántico');
             return;
         }
@@ -367,6 +367,7 @@ export class InterpreterVisitor extends BaseVisitor {
     visitFor(node) {
         const lastInc = node.prevConti;
         this.prevConti = node.inc;
+        console.log(node.cond);
 
         const forT = new nodos.Bloque({
             block: [
@@ -533,12 +534,12 @@ export class InterpreterVisitor extends BaseVisitor {
                     this.errs.addError(`Tipo de dato incorrecto: se esperaba string pero se obtuvo ${val.tipo}`, node.location.start.line, node.location.start.column, 'Semántico');
                     return { valor: null, tipo: 'null' };
                 }
-                const parsedfloat = parseInt(val.valor, 10);
+                const parsedfloat = parseFloat(val.valor, 10).toFixed(4);
                 if (isNaN(parsedfloat)) {
                     this.errs.addError(`La expresión "${val.valor}" no es convertible a decimal`, node.location.start.line, node.location.start.column, 'Semántico');
                     return { valor: null, tipo: 'null' };
                 }
-                return { valor: parsedfloat.toFixed(4), tipo: 'float' };
+                return { valor: parsedfloat, tipo: 'float' };
             case 'toString(':
                 return { valor: val.valor.toString(), tipo: 'string' };
             case 'toLowerCase(':
@@ -550,5 +551,149 @@ export class InterpreterVisitor extends BaseVisitor {
             default:
                 throw new Error('Tipo embebido no soportado');
         }
+    }
+
+    /**
+      * @type {BaseVisitor['visitDeclaracionArreglo']}
+      */
+    visitDeclaracionArreglo(node) {
+        const tipo = node.tipo;
+        const id = node.id;
+        const lista = node.lista.map(exp => exp.accept(this));
+        const linea = node.location.start.line;
+        const columna = node.location.start.column;
+
+        for (const elem of lista) {
+            if (elem.tipo !== tipo) {
+                this.errs.addError(`Tipo de dato incorrecto en el arreglo: se esperaba ${tipo} pero se obtuvo ${elem.tipo}`, linea, columna, 'Semántico');
+                return;
+            }
+        }
+        this.entornoActual.set(id, lista, tipo );
+        this.symbolTable.addSymbol(id, 'arreglo', tipo, 'global', linea, columna);
+    }
+
+     /**
+      * @type {BaseVisitor['visitDeclaracionArregloTam']}
+      */
+    visitDeclaracionArregloTam(node) {
+        const tipo = node.tipo;
+        const id = node.id;
+        const tam = node.tam.accept(this);
+        const linea = node.location.start.line;
+        const columna = node.location.start.column;
+        if (tam.tipo !== 'int' || tam.valor < 0) {
+            this.errs.addError(`Tamaño de arreglo inválido: se esperaba un entero no negativo`, linea, columna, 'Semántico');
+            return;
+        }
+        const valorPorDefecto = this.obtenerValorPorDefecto(tipo);
+        const arreglo = Array(tam.valor).fill(valorPorDefecto);
+
+        this.entornoActual.set(id, arreglo, tipo );
+        this.symbolTable.addSymbol(id, 'arreglo', tipo, 'global', linea, columna);
+    }
+
+    /**
+      * @type {BaseVisitor['visitDeclaracionArregloCopia']}
+     */
+    visitDeclaracionArregloCopia(node) {
+        const tipo = node.tipo;
+        const id = node.id;
+        const id2 = node.id2;
+        const linea = node.location.start.line;
+        const columna = node.location.start.column;
+        const arregloOriginal = this.entornoActual.get(id2);
+
+        this.entornoActual.set(id, [...arregloOriginal.valor], tipo);
+        this.symbolTable.addSymbol(id, 'arreglo', tipo, 'global', linea, columna);
+    }
+
+    /**
+      * @type {BaseVisitor['visitAccesoArreglo']}
+     */
+    visitAccesoArreglo(node) {
+        const id = node.id;
+        const indie = node.indice.accept(this);
+        const linea = node.location.start.line;
+        const columna = node.location.start.column;
+        const arreglo = this.entornoActual.get(id);
+
+        if (indie.tipo !== 'int' || indie.valor < 0 || indie.valor >= arreglo.valor.length) {
+            this.errs.addError(`Índice de arreglo fuera de rango`, linea, columna, 'Semántico');
+            return { valor: null, tipo: 'null' };
+        }
+
+        return arreglo.valor[indie.valor];
+    }
+
+    /**
+      * @type {BaseVisitor['visitAsignacionArreglo']}
+     */
+    visitAsignacionArreglo(node) {
+        const id = node.id;
+        const indie = node.indice.accept(this);
+        const value = node.valor.accept(this);
+        const linea = node.location.start.line;
+        const columna = node.location.start.column;
+        const arreglo = this.entornoActual.get(id);
+        if (indie.tipo !== 'int' || indie.valor < 0 || indie.valor >= arreglo.valor.length) {
+            this.errs.addError(`Índice de arreglo fuera de rango`, linea, columna, 'Semántico');
+            return;
+        }
+        arreglo.valor[indie.valor] = value;
+    }
+
+    obtenerValorPorDefecto(tipo) {
+        switch (tipo) {
+            case 'int': return { valor: 0, tipo: 'int' };
+            case 'float': return { valor: 0.0, tipo: 'float' };
+            case 'string': return { valor: '', tipo: 'string' };
+            case 'boolean': return { valor: false, tipo: 'boolean' };
+            case 'char': return { valor: '\u0000', tipo: 'char' };
+            case 'struct': return { valor: null, tipo: 'struct' };
+            default: throw new Error(`Tipo no soportado: ${tipo}`);
+        }
+    }
+
+    /**
+     * @type {BaseVisitor['visitFuncionArreglo']}
+     */
+    visitFuncionArreglo(node) {
+        const id = node.id;
+        const funcion = node.funcion;
+        const argumento = node.argumento ? node.argumento.accept(this) : null;
+        const linea = node.location.start.line;
+        const columna = node.location.start.column;
+        const arreglo = this.entornoActual.get(id);
+
+        switch (funcion) {
+            case 'indexOf':
+                if (argumento === null) {
+                    this.errs.addError(`La función indexOf requiere un argumento`, linea, columna, 'Semántico');
+                    return { valor: null, tipo: 'null' };
+                }
+                return this.indexOf(arreglo, argumento);
+            case 'join':
+                return this.join(arreglo);
+            case 'length':
+                return { valor: arreglo.valor.length, tipo: 'int' };
+            default:
+                this.errs.addError(`Función de arreglo no soportada: ${funcion}`, linea, columna, 'Semántico');
+                return { valor: null, tipo: 'null' };
+        }
+    }
+
+    indexOf(arreglo, argumento) {
+        for (let i = 0; i < arreglo.valor.length; i++) {
+            if (arreglo.valor[i].valor === argumento.valor) {
+                return { valor: i, tipo: 'int' };
+            }
+        }
+        return { valor: -1, tipo: 'int' };
+    }
+
+    join(arreglo) {
+        const joinedString = arreglo.valor.map(elem => elem.valor).join(', ');
+        return { valor: joinedString, tipo: 'string' };
     }
 }

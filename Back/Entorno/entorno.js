@@ -49,4 +49,8 @@ export class Entorno {
 
         throw new Error(`La variable ${id} no está definida`);
     }
+
+    getLocal(id) {
+        return this.valores.hasOwnProperty(id) ? this.valores[id] : undefined;
+    }
 }

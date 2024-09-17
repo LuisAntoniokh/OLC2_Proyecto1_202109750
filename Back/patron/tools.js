@@ -383,6 +383,138 @@ const configuracionNodos = [
             }
         ]
     },
+    // return crearNodo('declaracionArreglo', { tipo, id, lista }) 
+    {
+        name: 'DeclaracionArreglo',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'tipo',
+                type: 'string',
+                description: 'Tipo de dato del arreglo'
+            },
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador del arreglo'
+            },
+            {
+                name: 'lista',
+                type: 'Expresion[]',
+                description: 'Lista de elementos del arreglo'
+            }
+        ]
+    },
+    // return crearNodo('declaracionArregloTam', { tipo, id, tipo2, tam })
+    {
+        name: 'DeclaracionArregloTam',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'tipo',
+                type: 'string',
+                description: 'Tipo de dato del arreglo'
+            },
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador del arreglo'
+            },
+            {
+                name: 'tipo2',
+                type: 'string',
+                description: 'Tipo de dato del tamaño'
+            },
+            {
+                name: 'tam',
+                type: 'Expresion',
+                description: 'Tamaño del arreglo'
+            }
+        ]
+    },
+    // return crearNodo('declaracionArregloCopia', { tipo, id, id2 })
+    {
+        name: 'DeclaracionArregloCopia',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'tipo',
+                type: 'string',
+                description: 'Tipo de dato del arreglo'
+            },
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador del arreglo'
+            },
+            {
+                name: 'id2',
+                type: 'string',
+                description: 'Identificador del arreglo a copiar'
+            }
+        ]
+    },
+    // return crearNodo('accesoArreglo', { id, indice })
+    {
+        name: 'AccesoArreglo',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador del arreglo'
+            },
+            {
+                name: 'indice',
+                type: 'Expresion',
+                description: 'Indice del arreglo'
+            }
+        ]
+    },
+    // return crearNodo('asignacionArreglo', { id, indice, valor })
+    {
+        name: 'AsignacionArreglo',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador del arreglo'
+            },
+            {
+                name: 'indice',
+                type: 'Expresion',
+                description: 'Indice del arreglo'
+            },
+            {
+                name: 'valor',
+                type: 'Expresion',
+                description: 'Valor a asignar'
+            }
+        ]
+    },
+    // return crearNodo('funcionArreglo', { id, funcion: funcion.funcion, argumento: funcion.argumento });
+    {
+        name: 'FuncionArreglo',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador del arreglo'
+            },
+            {
+                name: 'funcion',
+                type: 'string',
+                description: 'Funcion del arreglo'
+            },
+            {
+                name: 'argumento',
+                type: 'Expresion|undefined',
+                description: 'Argumento de la funcion'
+            }
+        ]
+    },
 ]
 
 let code = ''

@@ -22,7 +22,13 @@
       'dclFunc' : nodos.FuncDcl,
       'switch': nodos.Switch,
       'ternario': nodos.Ternario,
-      'embebidas': nodos.Embebidas
+      'embebidas': nodos.Embebidas,
+      'declaracionArreglo' : nodos.DeclaracionArreglo,
+      'declaracionArregloTam' : nodos.DeclaracionArregloTam,
+      'declaracionArregloCopia' : nodos.DeclaracionArregloCopia,
+      'accesoArreglo' : nodos.AccesoArreglo,
+      'asignacionArreglo' : nodos.AsignacionArreglo,
+      'funcionArreglo' : nodos.FuncionArreglo
     }
 
     const nodo = new tipos[tipoNodo](propert)
@@ -35,6 +41,7 @@ Start = _ dcl:Sentencias* _ { return dcl }
 
 Sentencias = vdlc:DeclarVar _ { return vdlc }
             / fdlc:DeclarFunc _ { return fdlc }
+            / adlc:DeclarArr _ ";" _ { return adlc }
             / ndlc:StmtnDlc _ { return ndlc }
 
 DeclarVar = tipo:TipoDato _ id:Identificador _ "=" _ exp:Expresion _ ";" {return crearNodo('declaracionVariable', { id, exp, tipo })}
@@ -46,6 +53,10 @@ TipoDato = td:"int" { return td }
         / td:"string" { return td }
         / td:"bool" { return td }
         / td:"char" { return td }
+
+DeclarArr = tipo:TipoDato _ "[" _ "]" _ id:Identificador _ "=" _ "{" _ lista:ListaExp _ "}" { return crearNodo('declaracionArreglo', { tipo, id, lista }) }
+  / tipo:TipoDato _ "[" _ "]" _ id:Identificador _ "=" _ "new" _ tipo2:TipoDato _ "[" _ tam:Expresion _ "]" { return crearNodo('declaracionArregloTam', { tipo, id, tipo2, tam }) }
+  / tipo:TipoDato _ "[" _ "]" _ id:Identificador _ "=" _ id2:Identificador { return crearNodo('declaracionArregloCopia', { tipo, id, id2 }) }
 
 DeclarFunc = td:FuncTipoDato _ id:Identificador _ "(" _ params: Parametros? _ ")" _  block:Bloque { return crearNodo('dclFunc', { td,  id, params: params || [], block }) }
 
@@ -100,7 +111,14 @@ TipoEmb = tem:"parseInt("  { return tem }
       / tem:"toLowerCase(" { return tem }
       / tem:"toUpperCase(" { return tem }
 
-Expresion = Asignacion
+Expresion = FuncionArreglo
+            / ArrAsign:AsignacionArreglo  { return ArrAsign }
+            / ArrAcces:AccesoArreglo { return ArrAcces }
+            / Asignacion
+
+FuncionArreglo = id:Identificador "." funcion:("indexOf(" _ argumento:Expresion _ ")" { return { funcion: 'indexOf', argumento }; }
+              / "join()" { return { funcion: 'join' }; }
+              / "length" { return { funcion: 'length' }; }) { return crearNodo('funcionArreglo', { id, funcion: funcion.funcion, argumento: funcion.argumento }); }
 
 Tercero = cond:OR _ "?" _ iftrue:Expresion _ ":" _ iffalse:Expresion { return crearNodo('ternario', {cond, iftrue, iffalse}); }
 
@@ -110,6 +128,10 @@ Asignacion = tipo:"typeof" _ exp:Expresion _ { return crearNodo('embebidas', { t
             / id:Identificador _ "-=" _ asgn:Asignacion { return crearNodo('asignacion', { id, asgn: crearNodo('binaria', { op: '-', izq: crearNodo('referenciaVariable', { id }), der: asgn }) }) }
             / tercer:Tercero { return tercer }
             / OR
+
+AccesoArreglo = id:Identificador _ "[" _ indice:Expresion _ "]" { return crearNodo('accesoArreglo', { id, indice }) }
+
+AsignacionArreglo = id:Identificador _ "[" _ indice:Expresion _ "]" _ "=" _ valor:Expresion _ { return crearNodo('asignacionArreglo', { id, indice, valor }) }
 
 OR = izq:AND expansion:(
   _ op:( "||" ) _ der:AND { return { tipo: op, der } }

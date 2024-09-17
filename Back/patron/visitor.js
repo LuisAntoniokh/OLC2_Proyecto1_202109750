@@ -69,6 +69,24 @@
 
  * @typedef {import('./nodos').Embebidas} Embebidas
 
+
+ * @typedef {import('./nodos').DeclaracionArreglo} DeclaracionArreglo
+
+
+ * @typedef {import('./nodos').DeclaracionArregloTam} DeclaracionArregloTam
+
+
+ * @typedef {import('./nodos').DeclaracionArregloCopia} DeclaracionArregloCopia
+
+
+ * @typedef {import('./nodos').AccesoArreglo} AccesoArreglo
+
+
+ * @typedef {import('./nodos').AsignacionArreglo} AsignacionArreglo
+
+
+ * @typedef {import('./nodos').FuncionArreglo} FuncionArreglo
+
  */
 
 
@@ -283,6 +301,60 @@ export class BaseVisitor {
      */
     visitEmbebidas(node) {
         throw new Error('Metodo visitEmbebidas no implementado');
+    }
+    
+
+    /**
+     * @param {DeclaracionArreglo} node
+     * @returns {any}
+     */
+    visitDeclaracionArreglo(node) {
+        throw new Error('Metodo visitDeclaracionArreglo no implementado');
+    }
+    
+
+    /**
+     * @param {DeclaracionArregloTam} node
+     * @returns {any}
+     */
+    visitDeclaracionArregloTam(node) {
+        throw new Error('Metodo visitDeclaracionArregloTam no implementado');
+    }
+    
+
+    /**
+     * @param {DeclaracionArregloCopia} node
+     * @returns {any}
+     */
+    visitDeclaracionArregloCopia(node) {
+        throw new Error('Metodo visitDeclaracionArregloCopia no implementado');
+    }
+    
+
+    /**
+     * @param {AccesoArreglo} node
+     * @returns {any}
+     */
+    visitAccesoArreglo(node) {
+        throw new Error('Metodo visitAccesoArreglo no implementado');
+    }
+    
+
+    /**
+     * @param {AsignacionArreglo} node
+     * @returns {any}
+     */
+    visitAsignacionArreglo(node) {
+        throw new Error('Metodo visitAsignacionArreglo no implementado');
+    }
+    
+
+    /**
+     * @param {FuncionArreglo} node
+     * @returns {any}
+     */
+    visitFuncionArreglo(node) {
+        throw new Error('Metodo visitFuncionArreglo no implementado');
     }
     
 }
