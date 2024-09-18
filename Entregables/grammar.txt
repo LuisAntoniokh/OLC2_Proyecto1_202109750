@@ -1,0 +1,176 @@
+<Start> ::= <_> <Sentencias>* <_>
+
+<Sentencias> ::= <DeclarStruct> <_> ";" <_>
+               | <DeclarVar> <_>
+               | <DeclarFunc> <_>
+               | <DeclarArr> <_> ";" <_>
+               | <DeclaracionMatriz2D> <_> ";" <_>
+               | <DeclaracionMatriz3D> <_> ";" <_>
+               | <StmtnDlc> <_>
+
+<DeclarStruct> ::= "struct" <_> <Identificador> <_> "{" <_> <PropiedadStruct>+ <_> "}"
+
+<PropiedadStruct> ::= <_> <TipoDato> <_> <Identificador> <_> ";"
+
+<DeclarVar> ::= <TipoDato> <_> <Identificador> <_> "=" <_> <Expresion> <_> ";"
+              | "var" <_> <Identificador> <_> "=" <_> <Expresion> <_> ";"
+              | <TipoDato> <_> <Identificador> <_> ";"
+
+<TipoDato> ::= "int"
+             | "float"
+             | "string"
+             | "bool"
+             | "char"
+             | <Identificador>
+
+<InstanciaStruct> ::= <_> "var" <_> <Identificador> <_> "=" <_> <Identificador> <_> "{" <_> <AsignacionStruct>* <_> "}" <_>
+                    | <_> <Identificador> <_> <Identificador> <_> "=" <_> <Identificador> <_> "{" <_> <AsignacionStruct>* <_> "}" <_>
+
+<AsignacionStruct> ::= <_> <Identificador> <_> ":" <_> <Expresion> <_> ","? <_>
+
+<AccesoPropiedadStruct> ::= <Identificador> <_> "." <_> <Identificador>
+
+<DeclarArr> ::= <TipoDato> <_> "[" <_> "]" <_> <Identificador> <_> "=" <_> "{" <_> <ListaExp> <_> "}"
+              | <TipoDato> <_> "[" <_> "]" <_> <Identificador> <_> "=" <_> "new" <_> <TipoDato> <_> "[" <_> <Expresion> <_> "]"
+              | <TipoDato> <_> "[" <_> "]" <_> <Identificador> <_> "=" <_> <Identificador>
+
+<DeclaracionMatriz2D> ::= <TipoDato> <_> "[" <_> "]" <_> "[" <_> "]" <_> <Identificador> <_> "=" <_> "{" <_> <ListaFilas> <_> "}"
+                        | <TipoDato> <_> "[" <_> "]" <_> "[" <_> "]" <_> <Identificador> <_> "=" <_> "new" <_> <TipoDato> <_> "[" <_> <Expresion> <_> "]" <_> "[" <_> <Expresion> <_> "]"
+
+<ListaFilas> ::= <ListaFila> <ListaFila2>*
+
+<ListaFila> ::= "{" <_> <ListaExp> <_> "}"
+
+<DeclaracionMatriz3D> ::= <TipoDato> <_> "[" <_> "]" <_> "[" <_> "]" <_> "[" <_> "]" <_> <Identificador> <_> "=" <_> "{" <_> <ListaCapas> <_> "}"
+                        | <TipoDato> <_> "[" <_> "]" <_> "[" <_> "]" <_> "[" <_> "]" <_> <Identificador> <_> "=" <_> "new" <_> <TipoDato> <_> "[" <_> <Expresion> <_> "]" <_> "[" <_> <Expresion> <_> "]" <_> "[" <_> <Expresion> <_> "]"
+
+<ListaCapas> ::= <ListaCapa> <ListaCapas2>*
+
+<ListaCapa> ::= "{" <_> <ListaFilas> <_> "}"
+
+<DeclarFunc> ::= <FuncTipoDato> <_> <Identificador> <_> "(" <_> <Parametros>? <_> ")" <_> <Bloque>
+
+<Parametros> ::= <Parametro> <Parametros2>*
+
+<Parametro> ::= <TipoDato> <_> <Identificador>
+
+<FuncTipoDato> ::= "int"
+                | "float"
+                | "string"
+                | "bool"
+                | "char"
+                | "void"
+
+<StmtnDlc> ::= "System.out.println(" <_> <ListaExp> <_> ")" <_> ";"
+             | <Bloque>
+             | <StmtControl>
+             | <StmtCiclos>
+             | <StmtTransferencia>
+             | <Expresion> <_> ";"
+
+<ListaExp> ::= <Expresion> <ListaExp2>*
+
+<Bloque> ::= "{" <_> <Sentencias>* <_> "}"
+
+<StmtControl> ::= "if" <_> "(" <_> <Expresion> <_> ")" <_> <StmtnDlc> <StmtControl2>?
+                | <Switch>
+
+<Switch> ::= "switch" <_> "(" <_> <Expresion> <_> ")" <_> "{" <_> <Case>* <Default>? <_> "}"
+
+<Case> ::= "case" <_> <Expresion> <_> ":" <_> <Sentencias>*
+
+<Default> ::= "default" <_> ":" <_> <Sentencias>*
+
+<StmtCiclos> ::= "while" <_> "(" <_> <Expresion> <_> ")" <_> <StmtnDlc>
+               | "for" <_> "(" <_> <ForInit> <_> <Expresion> <_> ";" <_> <Expresion> <_> ")" <_> <StmtnDlc>
+               | "for" <_> "(" <_> <TipoDato> <_> <Identificador> <_> ":" <_> <Identificador> <_> ")" <_> <StmtnDlc>
+
+<ForInit> ::= <DeclarVar>
+            | <Expresion> <_> ";"
+
+<StmtTransferencia> ::= "break" <_> ";"
+                      | "continue" <_> ";"
+                      | "return" <Expresion>? <_> ";"
+
+<TipoEmb> ::= "parseInt("
+            | "parsefloat("
+            | "toString("
+            | "toLowerCase("
+            | "toUpperCase("
+
+<Expresion> ::= <_> "Object.keys(" <_> <Expresion> <_> ")"
+              | <InstanciaStruct>
+              | <FuncionArreglo>
+              | <AsignacionMatriz>
+              | <AccesoMatriz>
+              | <AsignacionArreglo>
+              | <AccesoArreglo>
+              | <Asignacion>
+
+<FuncionArreglo> ::= <Identificador> "." <FuncionArreglo2>
+
+<Tercero> ::= <OR> <_> "?" <_> <Expresion> <_> ":" <_> <Expresion>
+
+<Asignacion> ::= "typeof" <_> <Expresion> <_>
+               | <Identificador> <_> "=" <_> <Asignacion>
+               | <_> <AccesoPropiedadStruct> <_> "=" <_> <Expresion> <_>
+               | <AccesoPropiedadStruct>
+               | <Identificador> <_> "+=" <_> <Asignacion>
+               | <Identificador> <_> "-=" <_> <Asignacion>
+               | <Tercero>
+               | <OR>
+
+<AccesoArreglo> ::= <Identificador> <_> "[" <_> <Expresion> <_> "]"
+
+<AccesoMatriz> ::= <Identificador> <_> "[" <_> <Expresion> <_> "]" <_> "[" <_> <Expresion> <_> "]" <_> "[" <_> <Expresion> <_> "]"
+                 | <Identificador> <_> "[" <_> <Expresion> <_> "]" <_> "[" <_> <Expresion> <_> "]"
+
+<AsignacionArreglo> ::= <Identificador> <_> "[" <_> <Expresion> <_> "]" <_> "=" <_> <Expresion> <_>
+
+<AsignacionMatriz> ::= <Identificador> <_> "[" <_> <Expresion> <_> "]" <_> "[" <_> <Expresion> <_> "]" <_> "[" <_> <Expresion> <_> "=" <_> <Expresion>
+                    | <Identificador> <_> "[" <_> <Expresion> <_> "]" <_> "[" <_> <Expresion> <_> "=" <_> <Expresion>
+
+<OR> ::= <AND> <OR2>*
+
+<AND> ::= <Comparacion> <AND2>*
+
+<Comparacion> ::= <Relacionales> <Comparacion2>*
+
+<Relacionales> ::= <Adicion> <Relacionales2>*
+
+<Adicion> ::= <Multiplicacion> <Adicion2>*
+
+<Multiplicacion> ::= <Unaria> <Multiplicacion2>*
+
+<Unaria> ::= "-" <_> <Unaria>
+           | "!" <_> <Unaria>
+           | <Llamada>
+
+<Llamada> ::= <Primitivo> <Llamada2>*
+
+<Argumentos> ::= <Expresion> <Argumentos2>*
+
+<Identificador> ::= [a-zA-Z_][a-zA-Z0-9_]*
+
+<Primitivo> ::= [0-9]+"."[0-9]+
+              | [0-9]+
+              | "true"
+              | "false"
+              | <String>
+              | "\'" [^'] "\'"
+              | "(" <_> <Expresion> <_> ")"
+              | <TipoEmb> <_> <Expresion> <_> ")"
+              | <Identificador>
+
+<String> ::= "\"" <chars> "\""
+
+<EscapedChar> ::= "\\" ("n"
+                      | "r"
+                      | "t"
+                      | "\""
+                      | "\\")
+
+<_> ::= ([ \t\n\r] | <Comentarios>)*
+
+<Comentarios> ::= "//" (![\n] .)*
+                | "/*" (!("*/") .)* "*/"

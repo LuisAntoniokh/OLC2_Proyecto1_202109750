@@ -35,7 +35,11 @@
       'accesoMatriz2D' : nodos.AccesoMatriz2D,
       'accesoMatriz3D' : nodos.AccesoMatriz3D,
       'asignacionMatriz2D' : nodos.AsignacionMatriz2D,
-      'asignacionMatriz3D' : nodos.AsignacionMatriz3D
+      'asignacionMatriz3D' : nodos.AsignacionMatriz3D,
+      'declaracionStruct' : nodos.DeclaracionStruct,
+      'instanciaStruct' : nodos.InstanciaStruct,
+      'accesoPropiedadStruct' : nodos.AccesoPropiedadStruct,
+      'asignacionPropiedadStruct' : nodos.AsignacionPropiedadStruct
     }
 
     const nodo = new tipos[tipoNodo](propert)
@@ -46,12 +50,17 @@
 
 Start = _ dcl:Sentencias* _ { return dcl }
 
-Sentencias = vdlc:DeclarVar _ { return vdlc }
+Sentencias = sdlc:DeclarStruct _ ";" _ { return sdlc }
+            / vdlc:DeclarVar _ { return vdlc }
             / fdlc:DeclarFunc _ { return fdlc }
             / adlc:DeclarArr _ ";" _ { return adlc }
             / dlc2D:DeclaracionMatriz2D _ ";" _ { return dlc2D }
             / dlc3D:DeclaracionMatriz3D _ ";" _ { return dlc3D }
             / ndlc:StmtnDlc _ { return ndlc }
+
+DeclarStruct = "struct" _ id:Identificador _ "{" _ propiedades:PropiedadStruct+ _ "}" { return crearNodo('declaracionStruct', { id, propiedades }); }
+
+PropiedadStruct = _ tipo:TipoDato _ id:Identificador _ ";" { return { tipo, id }; }
 
 DeclarVar = tipo:TipoDato _ id:Identificador _ "=" _ exp:Expresion _ ";" {return crearNodo('declaracionVariable', { id, exp, tipo })}
           / tipo:"var" _ id:Identificador _ "=" _ exp:Expresion _ ";" {return crearNodo('declaracionVariable', { id, exp, tipo })} // Se infiere el tipo.
@@ -62,6 +71,14 @@ TipoDato = td:"int" { return td }
         / td:"string" { return td }
         / td:"bool" { return td }
         / td:"char" { return td }
+        / td:Identificador { return td } 
+
+InstanciaStruct = _ "var" _ id:Identificador _ "=" _ idStruct:Identificador _ "{" _ asignaciones:AsignacionStruct* _ "}" _ { return crearNodo('instanciaStruct', { id, idStruct, asignaciones }); }
+                / _ idStr:Identificador _ id:Identificador _ "=" _ idStruct:Identificador _ "{" _ asignaciones:AsignacionStruct* _ "}" _ { return crearNodo('instanciaStruct', { id, idStruct, asignaciones }); }
+
+AsignacionStruct = _ id:Identificador _ ":" _ valor:Expresion _ ","? _ { return { id, valor }; }
+
+AccesoPropiedadStruct = id:Identificador _ "." _ propiedad:Identificador { return crearNodo('accesoPropiedadStruct', { id, propiedad }); }
 
 DeclarArr = tipo:TipoDato _ "[" _ "]" _ id:Identificador _ "=" _ "{" _ lista:ListaExp _ "}" { return crearNodo('declaracionArreglo', { tipo, id, lista }) }
   / tipo:TipoDato _ "[" _ "]" _ id:Identificador _ "=" _ "new" _ tipo2:TipoDato _ "[" _ tam:Expresion _ "]" { return crearNodo('declaracionArregloTam', { tipo, id, tipo2, tam }) }
@@ -139,7 +156,9 @@ TipoEmb = tem:"parseInt("  { return tem }
       / tem:"toLowerCase(" { return tem }
       / tem:"toUpperCase(" { return tem }
 
-Expresion = FuncionArreglo
+Expresion = _ tipo:"Object.keys(" _ exp:Expresion _ ")" { return crearNodo('embebidas', {tipo, exp}) }
+            / InstanciaStruct 
+            / FuncionArreglo
             / MatAsg:AsignacionMatriz { return MatAsg }
             / MatAcc:AccesoMatriz { return MatAcc }
             / ArrAsign:AsignacionArreglo  { return ArrAsign }
@@ -154,6 +173,8 @@ Tercero = cond:OR _ "?" _ iftrue:Expresion _ ":" _ iffalse:Expresion { return cr
 
 Asignacion = tipo:"typeof" _ exp:Expresion _ { return crearNodo('embebidas', { tipo, exp }); }
             / id:Identificador _ "=" _ asgn:Asignacion { return crearNodo('asignacion', {id, asgn} )}            
+            / _ structProp:AccesoPropiedadStruct _ "=" _ valor:Expresion _ { return crearNodo('asignacionPropiedadStruct', { structProp, valor }); } // Añadido
+            / AccesoPropiedadStruct 
             / id:Identificador _ "+=" _ asgn:Asignacion { return crearNodo('asignacion', { id, asgn: crearNodo('binaria', { op: '+', izq: crearNodo('referenciaVariable', { id }), der: asgn }) }) }
             / id:Identificador _ "-=" _ asgn:Asignacion { return crearNodo('asignacion', { id, asgn: crearNodo('binaria', { op: '-', izq: crearNodo('referenciaVariable', { id }), der: asgn }) }) }
             / tercer:Tercero { return tercer }

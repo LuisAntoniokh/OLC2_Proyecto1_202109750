@@ -1368,4 +1368,144 @@ export class AsignacionMatriz3D extends Expresion {
     }
 }
     
-export default { Expresion, Primal, OperacionBinaria, OperacionUnaria, Agrupacion, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt, Asignacion, Bloque, If, While, For, Break, Continue, Return, Llamada, FuncDcl, Switch, Ternario, Embebidas, DeclaracionArreglo, DeclaracionArregloTam, DeclaracionArregloCopia, AccesoArreglo, AsignacionArreglo, FuncionArreglo, ForEach, DeclaracionMatriz2D, DeclaracionMatriz3D, AccesoMatriz2D, AccesoMatriz3D, AsignacionMatriz2D, AsignacionMatriz3D }
+export class DeclaracionStruct extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador del struct
+ * @param {Array<{tipo: string, id: string}>} options.propiedades Propiedades del struct
+    */
+    constructor({ id, propiedades }) {
+        super();
+        
+        /**
+         * Identificador del struct
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Propiedades del struct
+         * @type {Array<{tipo: string, id: string}>}
+        */
+        this.propiedades = propiedades;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitDeclaracionStruct(this);
+    }
+}
+    
+export class InstanciaStruct extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador de la instancia
+ * @param {string} options.idStruct Identificador del struct
+ * @param {Array<{id: string, valor: Expresion}>} options.asignaciones Asignaciones de la instancia
+    */
+    constructor({ id, idStruct, asignaciones }) {
+        super();
+        
+        /**
+         * Identificador de la instancia
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Identificador del struct
+         * @type {string}
+        */
+        this.idStruct = idStruct;
+
+
+        /**
+         * Asignaciones de la instancia
+         * @type {Array<{id: string, valor: Expresion}>}
+        */
+        this.asignaciones = asignaciones;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitInstanciaStruct(this);
+    }
+}
+    
+export class AccesoPropiedadStruct extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.id Identificador de la instancia
+ * @param {string} options.propiedad Propiedad de la instancia
+    */
+    constructor({ id, propiedad }) {
+        super();
+        
+        /**
+         * Identificador de la instancia
+         * @type {string}
+        */
+        this.id = id;
+
+
+        /**
+         * Propiedad de la instancia
+         * @type {string}
+        */
+        this.propiedad = propiedad;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitAccesoPropiedadStruct(this);
+    }
+}
+    
+export class AsignacionPropiedadStruct extends Expresion {
+
+    /**
+    * @param {Object} options
+    * @param {AccesoPropiedadStruct} options.structProp Acceso a la propiedad del struct
+ * @param {Expresion} options.valor Valor a asignar
+    */
+    constructor({ structProp, valor }) {
+        super();
+        
+        /**
+         * Acceso a la propiedad del struct
+         * @type {AccesoPropiedadStruct}
+        */
+        this.structProp = structProp;
+
+
+        /**
+         * Valor a asignar
+         * @type {Expresion}
+        */
+        this.valor = valor;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitAsignacionPropiedadStruct(this);
+    }
+}
+    
+export default { Expresion, Primal, OperacionBinaria, OperacionUnaria, Agrupacion, Numero, DeclaracionVariable, ReferenciaVariable, Print, ExpresionStmt, Asignacion, Bloque, If, While, For, Break, Continue, Return, Llamada, FuncDcl, Switch, Ternario, Embebidas, DeclaracionArreglo, DeclaracionArregloTam, DeclaracionArregloCopia, AccesoArreglo, AsignacionArreglo, FuncionArreglo, ForEach, DeclaracionMatriz2D, DeclaracionMatriz3D, AccesoMatriz2D, AccesoMatriz3D, AsignacionMatriz2D, AsignacionMatriz3D, DeclaracionStruct, InstanciaStruct, AccesoPropiedadStruct, AsignacionPropiedadStruct }

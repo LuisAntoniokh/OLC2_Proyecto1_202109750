@@ -7,6 +7,8 @@ import { embebidas } from "./funciones/embebidas.js";
 import { FuncionForanea } from "./funciones/foranea.js";
 import { SymbolTable } from "./Entorno/simbolo.js";
 import { ErrorSemantico } from "./Entorno/errores.js";
+import { Struct } from "./complex/struct.js";
+import { InstanciaStruct } from "./complex/instancia.js";
 
 export class InterpreterVisitor extends BaseVisitor {
 
@@ -228,6 +230,12 @@ export class InterpreterVisitor extends BaseVisitor {
         const linea = node.location.start.line;
         const columna = node.location.start.column;
         const env = 'global';
+
+        if(tipoVariable instanceof Struct){
+            const instancia = tipoVariable.instanciar(node.exp.accept(this));
+            this.entornoActual.set(nombreVariable, instancia, Struct);
+        }
+
         if (this.entornoActual.getLocal(nombreVariable)) {
             this.errs.addError(`La variable ${nombreVariable} ya fue declarada en el mismo entorno`, linea, columna, 'Semántico');
             return;
@@ -548,6 +556,8 @@ export class InterpreterVisitor extends BaseVisitor {
                 return { valor: "\""+val.valor.toUpperCase()+"\"", tipo: 'string' };
             case 'typeof':
                 return { valor: val.tipo, tipo: 'string' };
+            case 'Object.keys(':
+                return { valor: Object.keys(val.valor.valores), tipo: 'string' };
             default:
                 throw new Error('Tipo embebido no soportado');
         }
@@ -848,5 +858,70 @@ export class InterpreterVisitor extends BaseVisitor {
         }
 
         matriz.valor[indice1][indice2][indice3] = valor;
+    }
+
+    /**
+     * @type {BaseVisitor['visitDeclaracionStruct']}
+     */
+    visitDeclaracionStruct(node){
+        const propiedades = {};
+
+        node.propiedades.forEach(dcl => {
+            if (dcl instanceof nodos.DeclaracionVariable) {
+                propiedades[dcl.id] = {
+                    tipo: dcl.tipo,
+                    valor: null
+                }
+            }
+        });
+
+        const struct = new Struct(node.id, propiedades);
+        this.entornoActual.set(node.id, struct, Struct);
+    }
+
+    /**
+     * @type {BaseVisitor['visitInstanciaStruct']}
+     */
+    visitInstanciaStruct(node){
+        const struct = this.entornoActual.get(node.idStruct);
+        if (!struct || !struct.valor ) {
+            throw new Error('El struct no tiene propiedades o no está inicializado correctamente');
+        }
+
+        const assignedValues = {};
+        node.asignaciones.forEach(prop => {
+            assignedValues[prop.id] = prop.valor.accept(this);
+            struct.valor.propiedades[prop.id] = prop.valor.accept(this);
+        });
+
+        const instanciaStruct = struct.valor.instanciar(assignedValues);
+        this.entornoActual.set(node.id, instanciaStruct, Struct);
+        return instanciaStruct;
+    }
+
+    /**
+     * @type {BaseVisitor['visitAccesoPropiedadStruct']}
+     */
+    visitAccesoPropiedadStruct(node){
+        //const instan = node.propiedad.accept(this);
+        const instan = this.entornoActual.get(node.id);
+        if (!(instan.valor instanceof InstanciaStruct)) {
+            throw new Error('No es posible acceder a una propiedad de algo que no es una instancia de struct');
+        }
+        return instan.valor.get(node.propiedad);
+    }
+
+    /**
+     * @type {BaseVisitor['visitAsignacionPropiedadStruct']}
+     */
+    visitAsignacionPropiedadStruct(node){
+        //const instan = node.structProp.accept(this);
+        const instan = this.entornoActual.get(node.structProp.id);
+        if (!(instan.valor instanceof InstanciaStruct)) {
+            throw new Error('No es posible asignar una propiedad de algo que no es una instancia de struct');
+        }
+        const value = node.valor.accept(this);
+        instan.valor.set(node.structProp.propiedad, value);
+        return value;
     }
 }

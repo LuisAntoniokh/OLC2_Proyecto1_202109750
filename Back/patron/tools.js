@@ -719,6 +719,79 @@ const configuracionNodos = [
             }
         ]
     },
+    // return crearNodo('declaracionStruct', { id, propiedades });
+    {
+        name: 'DeclaracionStruct',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador del struct'
+            },
+            {
+                name: 'propiedades',
+                type: 'Array<{tipo: string, id: string}>',
+                description: 'Propiedades del struct'
+            }
+        ]
+    },
+    // return crearNodo('instanciaStruct', { id, idStruct, asignaciones });
+    {
+        name: 'InstanciaStruct',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador de la instancia'
+            },
+            {
+                name: 'idStruct',
+                type: 'string',
+                description: 'Identificador del struct'
+            },
+            {
+                name: 'asignaciones',
+                type: 'Array<{id: string, valor: Expresion}>',
+                description: 'Asignaciones de la instancia'
+            }
+        ]
+    },
+    // return crearNodo('accesoPropiedadStruct', { id, propiedad });
+    {
+        name: 'AccesoPropiedadStruct',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'id',
+                type: 'string',
+                description: 'Identificador de la instancia'
+            },
+            {
+                name: 'propiedad',
+                type: 'string',
+                description: 'Propiedad de la instancia'
+            }
+        ]
+    },
+    // return crearNodo('asignacionPropiedadStruct', { structProp, valor }); 
+    {
+        name: 'AsignacionPropiedadStruct',
+        extends: 'Expresion',
+        props: [
+            {
+                name: 'structProp',
+                type: 'AccesoPropiedadStruct',
+                description: 'Acceso a la propiedad del struct'
+            },
+            {
+                name: 'valor',
+                type: 'Expresion',
+                description: 'Valor a asignar'
+            }
+        ]
+    },
 ]
 
 let code = ''

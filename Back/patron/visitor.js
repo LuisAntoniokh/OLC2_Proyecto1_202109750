@@ -108,6 +108,18 @@
 
  * @typedef {import('./nodos').AsignacionMatriz3D} AsignacionMatriz3D
 
+
+ * @typedef {import('./nodos').DeclaracionStruct} DeclaracionStruct
+
+
+ * @typedef {import('./nodos').InstanciaStruct} InstanciaStruct
+
+
+ * @typedef {import('./nodos').AccesoPropiedadStruct} AccesoPropiedadStruct
+
+
+ * @typedef {import('./nodos').AsignacionPropiedadStruct} AsignacionPropiedadStruct
+
  */
 
 
@@ -439,6 +451,42 @@ export class BaseVisitor {
      */
     visitAsignacionMatriz3D(node) {
         throw new Error('Metodo visitAsignacionMatriz3D no implementado');
+    }
+    
+
+    /**
+     * @param {DeclaracionStruct} node
+     * @returns {any}
+     */
+    visitDeclaracionStruct(node) {
+        throw new Error('Metodo visitDeclaracionStruct no implementado');
+    }
+    
+
+    /**
+     * @param {InstanciaStruct} node
+     * @returns {any}
+     */
+    visitInstanciaStruct(node) {
+        throw new Error('Metodo visitInstanciaStruct no implementado');
+    }
+    
+
+    /**
+     * @param {AccesoPropiedadStruct} node
+     * @returns {any}
+     */
+    visitAccesoPropiedadStruct(node) {
+        throw new Error('Metodo visitAccesoPropiedadStruct no implementado');
+    }
+    
+
+    /**
+     * @param {AsignacionPropiedadStruct} node
+     * @returns {any}
+     */
+    visitAsignacionPropiedadStruct(node) {
+        throw new Error('Metodo visitAsignacionPropiedadStruct no implementado');
     }
     
 }
